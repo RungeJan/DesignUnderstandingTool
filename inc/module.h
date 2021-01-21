@@ -45,15 +45,15 @@ struct module_t
     * @return A json object holding the information about this instance
     */
     json storeInJson();
-
-    std::string name;                                            //<! The name of the module
-    std::vector<port_t> ports;                                   //<! The input and output ports to the module, ports are mapped to the internal nets
-    std::vector<std::pair<std::string, std::string>> attributes; //<! All the attributes given to the module
-    std::vector<cell_t *> cells;                                 //<! Pointers to all the cells that where introduced by Yosys (pointers since there are multiple cell types derived from cell_t)
+    
+    std::string name;                                            //!< The name of the module
+    std::vector<port_t> ports;                                   //!< The input and output ports to the module, ports are mapped to the internal nets
+    std::vector<std::pair<std::string, std::string>> attributes; //!< All the attributes given to the module
+    std::vector<cell_t *> cells;                                 //!< Pointers to all the cells that where introduced by Yosys (pointers since there are multiple cell types derived from cell_t)
 
     // Internal known information
-    std::vector<net_t> netsInternal;      //<! All the nets that are used inside the module
-    std::vector<module_t> usedModules;    //<! All the modules that are used in this module
+    std::vector<net_t> netsInternal;      //!< All the nets that are used inside the module
+    std::vector<module_t> usedModules;    //!< All the modules that are used in this module
 };
 
 #endif //MODULE_H_

@@ -13,6 +13,9 @@
 
 using json = nlohmann::json;
 
+/**
+ * @brief This structure holds all the information of a verilog design
+ */
 struct design_t{
 
     /**
@@ -23,6 +26,6 @@ struct design_t{
     json storeInJson();
     //void createFromJson(json &inJ){};
 
-    std::string name;                   //<! The name of this design
-    std::vector<module_t> modules;      //<! all the modules that are within this file
-}; //<! This structure holds all the information of a verilog design
+    std::string name;                   //!< The name of this design
+    std::vector<module_t> modules;      //!< all the modules that are within this file
+}; 

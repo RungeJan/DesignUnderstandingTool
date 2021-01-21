@@ -30,7 +30,7 @@ public:
         return message.c_str();
     }
 private:
-    std::string message;    //<! The error message that will be returned
+    std::string message;    //!< The error message that will be returned
 };
 
 #endif // LOCAL_EXCEPTIONS_H_

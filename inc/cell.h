@@ -107,10 +107,10 @@ enum cellType_t
 struct cell_t
 {
     cell_t(std::string newName, bool hide, cellType_t newType) : name(newName), hideName(hide), type(newType){};
-    const std::string name; //<! The name of this cell
-    const bool hideName;    //<! true, if this cells name should be hidden, false otherwise
-    const cellType_t type;  //<! the exact type of this cell
-    std::vector<std::pair<std::string, std::string>> attributes; //<! All the attributes given to the cell
+    const std::string name; //!< The name of this cell
+    const bool hideName;    //!< true, if this cells name should be hidden, false otherwise
+    const cellType_t type;  //!< the exact type of this cell
+    std::vector<std::pair<std::string, std::string>> attributes; //!< All the attributes given to the cell
 };
 /**
  * @brief This struct servers as a representation for all cells of arithmetic type 
@@ -125,14 +125,14 @@ struct cellArithmetic_t : public cell_t{
               const unsigned int inAWidth, const unsigned int inBWidth, const unsigned int inYWidth) : 
                 aSigned(inASigned), bSigned(inBSigned), aWidth(inAWidth), bWidth(inBWidth), yWidth(inYWidth), 
                 cell_t(newName, hide, newType){};
-    const bool aSigned;         //<! true, if a is a signed value, false otherwise
-    const bool bSigned;         //<! true, if b is a signed value, false otherwise
-    const unsigned int aWidth;  //<! The width of input a
-    const unsigned int bWidth;  //<! The width of input b
-    const unsigned int yWidth;  //<! The width of output y
-    std::vector<port_t> a;      //<! vector of ports which act as the a input.
-    std::vector<port_t> b;      //<! vector of ports which act as the b input.
-    std::vector<port_t> y;      //<! vector of ports which act as the y output.
+    const bool aSigned;         //!< true, if a is a signed value, false otherwise
+    const bool bSigned;         //!< true, if b is a signed value, false otherwise
+    const unsigned int aWidth;  //!< The width of input a
+    const unsigned int bWidth;  //!< The width of input b
+    const unsigned int yWidth;  //!< The width of output y
+    std::vector<port_t> a;      //!< vector of ports which act as the a input.
+    std::vector<port_t> b;      //!< vector of ports which act as the b input.
+    std::vector<port_t> y;      //!< vector of ports which act as the y output.
 
     //virtual void cellToJson() = 0;
     //virtual void cellFromJson() = 0;
@@ -149,11 +149,11 @@ struct cellDFlipFlop_t : public cell_t{
     cellDFlipFlop_t(std::string newName, bool hide, const unsigned int newWidth, const unsigned int newClkPolarity, cellType_t newType, port_t newClk) :
         width(newWidth), clkPolarity(newClkPolarity), clk(newClk), cell_t(newName, hide, newType){};
 
-    const unsigned int width;       //<! The width of D and Q
-    const unsigned int clkPolarity; //<! The polarity of the CLK
-    port_t clk;                     //<! The port working as the CLK
-    std::vector<port_t> d;          //<! The input port D
-    std::vector<port_t> q;          //<! The output port Q
+    const unsigned int width;       //!< The width of D and Q
+    const unsigned int clkPolarity; //!< The polarity of the CLK
+    port_t clk;                     //!< The port working as the CLK
+    std::vector<port_t> d;          //!< The input port D
+    std::vector<port_t> q;          //!< The output port Q
 };
 /**
  * @brief This struct represents a D-FlipFlop with an extra enable pin
@@ -163,8 +163,8 @@ struct cellDFlipFlopEnable_t : public cellDFlipFlop_t{
     cellDFlipFlopEnable_t(std::string newName, bool hide, const unsigned int newWidth, const unsigned int newClkPolarity, const unsigned int newEnPolarity, cellType_t newType,
                           port_t newClk, port_t newEn) : enPolarity(newEnPolarity), en(newEn), cellDFlipFlop_t(newName, hide, newWidth, newClkPolarity, newType, newClk) {};
 
-    const unsigned int enPolarity;  //<! The polarity of the enable pin
-    port_t en;                      //<! The port working as the enable pin
+    const unsigned int enPolarity;  //!< The polarity of the enable pin
+    port_t en;                      //!< The port working as the enable pin
 };
 
 /**
@@ -178,10 +178,10 @@ struct cellDFlipFlopSetReset_t : cellDFlipFlop_t {
                             unsigned int newClrPolarity, cellType_t newType, port_t newClk) : setPolarity(newSetPolarity), clrPolarity(newClrPolarity),  
                             cellDFlipFlop_t(newName, hide, newWidth, newClkPolarity, newType, newClk) {};
 
-    const unsigned int setPolarity;     //<! The polarity of the set pin
-    const unsigned int clrPolarity;     //<! The polarity of the clear pin
-    std::vector<port_t> set;            //<! The port working as the set pin, has the width of the D-FlipFlop it is inherited from
-    std::vector<port_t> clr;            //<! The port working as the clr pin, has the width of the D-FlipFlop it is inherited from
+    const unsigned int setPolarity;     //!< The polarity of the set pin
+    const unsigned int clrPolarity;     //!< The polarity of the clear pin
+    std::vector<port_t> set;            //!< The port working as the set pin, has the width of the D-FlipFlop it is inherited from
+    std::vector<port_t> clr;            //!< The port working as the clr pin, has the width of the D-FlipFlop it is inherited from
 };
 
 /**
@@ -192,9 +192,9 @@ struct cellFlipFlop_t : public cell_t{ // TODO Add global clock ?
 
     cellFlipFlop_t(std::string newName, bool hide, unsigned int newWidth) : width(newWidth), cell_t(newName, hide, TypeFf){};
 
-    const unsigned int width;   //<! The width of D and Q
-    std::vector<port_t> d;      //<! The input pins D
-    std::vector<port_t> q;      //<! The output pins Q
+    const unsigned int width;   //!< The width of D and Q
+    std::vector<port_t> d;      //!< The input pins D
+    std::vector<port_t> q;      //!< The output pins Q
 };
 
 /**
@@ -206,11 +206,11 @@ struct cellDLatch_t : public cell_t{
     cellDLatch_t(std::string newName, bool hide,  cellType_t newType, const unsigned int newWidth, const unsigned int newEnPolarity, port_t newEn) : width(newWidth), enPolarity(newEnPolarity),
                  en(newEn), cell_t(newName, hide, newType){};
 
-    const unsigned int width;       //<! The width of D and Q
-    const unsigned int enPolarity;  //<! The polarity of the enable pin
-    port_t en;                      //<! The enabel pin
-    std::vector<port_t> d;          //<! The input pins D
-    std::vector<port_t> q;          //<! The output pins Q
+    const unsigned int width;       //!< The width of D and Q
+    const unsigned int enPolarity;  //!< The polarity of the enable pin
+    port_t en;                      //!< The enabel pin
+    std::vector<port_t> d;          //!< The input pins D
+    std::vector<port_t> q;          //!< The output pins Q
 };
 
 /**
@@ -222,11 +222,11 @@ struct cellDLatchSR_t : public cellDLatch_t{
                    unsigned int newSetPolarity, unsigned int newClrPolarity) : setPolarity(newSetPolarity), clrPolarity(newClrPolarity),
                    cellDLatch_t(newName, hide, newType, newWidth, newEnPolarity, newEn){};
 
-    const unsigned int setPolarity;     //<! The polarity of the set pin
-    const unsigned int clrPolarity;     //<! The polarity of the clear pin
+    const unsigned int setPolarity;     //!< The polarity of the set pin
+    const unsigned int clrPolarity;     //!< The polarity of the clear pin
 
-    std::vector<port_t> set;            //<! The set port, has the width of the DLatch it is inherited from
-    std::vector<port_t> clr;            //<! The clr port, has the width of the DLatch it is inherited from
+    std::vector<port_t> set;            //!< The set port, has the width of the DLatch it is inherited from
+    std::vector<port_t> clr;            //!< The clr port, has the width of the DLatch it is inherited from
 };
 
 /**
@@ -239,9 +239,9 @@ struct cellAdff_t : public cellDFlipFlop_t{
                port_t newClk, port_t newArst) : arstPolarity(newArstPolarity), arstValue(newArstValue), arst(newArst), 
                cellDFlipFlop_t(newName, hide, newWidth, newClkPolarity,TypeAdff, newClk) {};
 
-    const unsigned int arstPolarity;    //<! The polarity of the A-Reset signal
-    const unsigned int arstValue;       //<! The value to which Q will be resetted
-    port_t arst;                        //<! The port for the A-Reset input       
+    const unsigned int arstPolarity;    //!< The polarity of the A-Reset signal
+    const unsigned int arstValue;       //!< The value to which Q will be resetted
+    port_t arst;                        //!< The port for the A-Reset input       
 };
 
 /**
@@ -250,8 +250,8 @@ struct cellAdff_t : public cellDFlipFlop_t{
 struct cellConstAssign_t : public cell_t{
     cellConstAssign_t(std::string newName, bool hide, cellType_t newType, unsigned int newWidth) : cell_t(newName, hide, newType){};
 
-    unsigned int width;         //<! The width of the constant value
-    std::vector<port_t> y;      //<! The output port holding the value
+    unsigned int width;         //!< The width of the constant value
+    std::vector<port_t> y;      //!< The output port holding the value
 };
 
 /**
@@ -266,10 +266,10 @@ struct cellAlu_t : public cellArithmetic_t{
                const unsigned int inBWidth, const unsigned int inYWidth, port_t newCi, port_t newBi) : ci(newCi), bi(newBi),
               cellArithmetic_t(newName, hide, TypeAlu, inASigned, inBSigned, inAWidth, inBWidth, inYWidth){};
 
-    port_t ci;                  //<! The pin for the carry in signal
+    port_t ci;                  //!< The pin for the carry in signal
     port_t bi;
     std::vector<port_t> x;
-    std::vector<port_t> co;     //<! The pins for the carry out signal
+    std::vector<port_t> co;     //!< The pins for the carry out signal
 };
 
 /**
@@ -281,8 +281,8 @@ struct cellAEn_t : public cell_t{
 
     cellAEn_t(std::string newName, bool hide, const cellType_t type, port_t newA, port_t newEn) : a(newA), en(newEn), cell_t(newName, hide, type){};
 
-    port_t a;       //<! The a port of this cell
-    port_t en;      //<! The enable port of this cell
+    port_t a;       //!< The a port of this cell
+    port_t en;      //!< The enable port of this cell
 };
 
 /**
@@ -292,12 +292,12 @@ struct cellConcat_t : public cell_t{
 
     cellConcat_t(std::string newName, bool hide, unsigned int newAWidth, unsigned int newBWidth) : aWidth(newAWidth), bWidth(newBWidth), cell_t(newName, hide, TypeConcat){};
 
-    const unsigned int aWidth;  //<! The width of the input a
-    const unsigned int bWidth;  //<! the width of the input b
+    const unsigned int aWidth;  //!< The width of the input a
+    const unsigned int bWidth;  //!< the width of the input b
 
-    std::vector<port_t> a;      //<! The input ports a
-    std::vector<port_t> b;      //<! The input ports b
-    std::vector<port_t> y;      //<! The output ports y, width is aWidth+bWidth
+    std::vector<port_t> a;      //!< The input ports a
+    std::vector<port_t> b;      //!< The input ports b
+    std::vector<port_t> y;      //!< The output ports y, width is aWidth+bWidth
 
 };
 
@@ -308,9 +308,9 @@ struct cellEquiv_t : public cell_t{
 
     cellEquiv_t(std::string newName, bool hide, port_t newA, port_t newB, port_t newY) : a(newA), b(newB), y(newY), cell_t(newName, hide, TypeEquiv){};
 
-    port_t a;   //<! The a input pin
-    port_t b;   //<! The b input pin
-    port_t y;   //<! The y output pin
+    port_t a;   //!< The a input pin
+    port_t b;   //!< The b input pin
+    port_t y;   //!< The y output pin
 };
 
 struct cellFa_t : public cell_t{
