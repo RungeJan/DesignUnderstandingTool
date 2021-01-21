@@ -25,7 +25,7 @@ using json = nlohmann::json;
  * @param inJson A reference to the json description of netnames of a module <json_name>["modules"][<module_name>]["netnames"]
  * @param inModule A pointer to the module to which the nets should be added
  */
-void processNetsIntoVector(json &inJson, module_t *inModule);
+void processYosysNetsIntoVector(json &inJson, module_t *inModule);
 
 /**
  * @brief Passes all the attributes given in a Yosys intermediate representation into a vector of pairs
@@ -33,7 +33,7 @@ void processNetsIntoVector(json &inJson, module_t *inModule);
  * @param inJson A reference to a json description of attributes <json_name>[*]["attributes"]
  * @param inOutAtts A <std::vector> of <std::pair><<std::string>,<std::string>> that will be filled with the attributes
  */
-void processAttributesIntoVector(json &inJson, std::vector<std::pair<std::string, std::string>> &inOutAtts);
+void processYosysAttributesIntoVector(json &inJson, std::vector<std::pair<std::string, std::string>> &inOutAtts);
 
 /**
  * @brief This function will find all the cells that are given in a Yosys intermediate representation and add them to a module
@@ -42,7 +42,7 @@ void processAttributesIntoVector(json &inJson, std::vector<std::pair<std::string
  * @param inJson A reference to a json object holding the cells of the Yosys IR <json_name>["modules"][<module_name>]["cells"]
  * @param inModule A pointer to the module in that the cells should be found and to which the cells will be added
  */
-void processCellsIntoVector(json &inJson,module_t *inModulew);
+void processYosysCellsIntoVector(json &inJson,module_t *inModulew);
 
 /**
  * @brief This function will find all ports given in a Yosys Intermediate Representation and add them to a bodule
@@ -52,7 +52,7 @@ void processCellsIntoVector(json &inJson,module_t *inModulew);
  * @param inJson A reference to a json object holding the port descriptions of the Yosys IR, <json_name>["modules"][<module_name>]["ports"]
  * @param inModule A pointer to the module i that the ports should be added. Needs to contain the nets these ports are referring to
  */
-void processPortsIntoVector(json &inJson, module_t *inModule);
+void processYosysPortsIntoVector(json &inJson, module_t *inModule);
 
 
 

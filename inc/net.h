@@ -11,12 +11,26 @@
 #include <string>
 #include <vector>
 
+#include "nlohmann/json.hpp"
+
+using json = nlohmann::json;
+
 
 enum direction_t {DirectionInput, DirectionOutput, DirectionInOut};
 
+/**
+ * @brief This struct represents a net in the design
+ */
 struct net_t{
 
     net_t(std::string newName, const unsigned int newId, const bool inHideName):name(newName), bitId(newId), hideName(inHideName){};
+
+    /**
+     * @brief This function will parse the struct instance into a json object
+     * 
+     * @return A json object holding the information about this instance
+     */
+    json storeInJson();       
 
     std::string name;           //<! The name under which this net can be found in code
     const unsigned int bitId;   //<! A unique identifier for this net
@@ -27,6 +41,13 @@ struct net_t{
 struct port_t{
 
     port_t(direction_t newDirection, net_t & newNet) : direction(newDirection), net(newNet){};
+
+    /**
+     * @brief This function will parse the struct instance into a json object
+     * 
+     * @return A json object holding the information about this instance
+     */
+    json storeInJson();
 
     net_t &net;             //<! The net this port belongs to
     direction_t direction;  //<! The direction of this port

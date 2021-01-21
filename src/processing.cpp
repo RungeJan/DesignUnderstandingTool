@@ -6,6 +6,7 @@
 #include "module.h"
 #include "net.h"
 #include "cell.h"
+#include "localExceptions.h"
 
 using namespace std;
 
@@ -22,7 +23,7 @@ port_t *createPort(json inJ, direction_t inDir, module_t *inModule, int inPos = 
             if (temp != "x")
             {
                 netId = stoi(temp);
-                outPort = new port_t(DirectionInput, inModule->getNetWithId(netId));
+                outPort = new port_t(inDir, inModule->getNetWithId(netId));
             }
             else
             {
@@ -32,7 +33,7 @@ port_t *createPort(json inJ, direction_t inDir, module_t *inModule, int inPos = 
         else
         {
             netId = inJ["bits"].at(inPos);
-            outPort = new port_t(DirectionInput, inModule->getNetWithId(netId));
+            outPort = new port_t(inDir, inModule->getNetWithId(netId));
         }
     }
     catch (const elementDoesNotExistException &e)
@@ -51,7 +52,7 @@ inline void removeSignInString(char inSign, string &inString)
     };
 }
 
-void processAttributesIntoVector(json &inJson, vector<pair<string, string>> &inOutAtts)
+void processYosysAttributesIntoVector(json &inJson, vector<pair<string, string>> &inOutAtts)
 {
     string inString = inJson.dump();
     removeSignInString('\"', inString);
@@ -73,7 +74,7 @@ void processAttributesIntoVector(json &inJson, vector<pair<string, string>> &inO
     inOutAtts.push_back(make_pair(key, value));
 }
 
-void processCellsIntoVector(json &inJson, module_t *inModule)
+void processYosysCellsIntoVector(json &inJson, module_t *inModule)
 {
     int jSize = inJson.size();
     for (int i = 0; i < jSize; i++)
@@ -87,7 +88,7 @@ void processCellsIntoVector(json &inJson, module_t *inModule)
     }
 }
 
-void processNetsIntoVector(json &inJson, module_t *inModule)
+void processYosysNetsIntoVector(json &inJson, module_t *inModule)
 {
     net_t *newNet;
     int jSize = inJson.size();
@@ -102,7 +103,7 @@ void processNetsIntoVector(json &inJson, module_t *inModule)
             newNet = new net_t(netName, (*it)["bits"].at(0), (*it)["hide_name"] == 1 ? true : false);
             if ((*it)["attributes"].size() > 0)
             {
-                processAttributesIntoVector((*it)["attributes"], newNet->attributes);
+                processYosysAttributesIntoVector((*it)["attributes"], newNet->attributes);
             }
             inModule->netsInternal.push_back(*newNet);
         }
@@ -113,7 +114,7 @@ void processNetsIntoVector(json &inJson, module_t *inModule)
                 newNet = new net_t(netName + "[" + to_string(j) + "]", (*it)["bits"].at(j), (*it)["hide_name"] == 1 ? true : false);
                 if ((*it)["attributes"].size() > 0)
                 {
-                    processAttributesIntoVector((*it)["attributes"], newNet->attributes);
+                    processYosysAttributesIntoVector((*it)["attributes"], newNet->attributes);
                 }
                 inModule->netsInternal.push_back(*newNet);
             }
@@ -123,7 +124,7 @@ void processNetsIntoVector(json &inJson, module_t *inModule)
     }
 }
 
-void processPortsIntoVector(json &inJson, module_t *inModule)
+void processYosysPortsIntoVector(json &inJson, module_t *inModule)
 {
     port_t *newPort;
     json::iterator it = inJson.begin();

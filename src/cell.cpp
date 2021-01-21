@@ -7,6 +7,8 @@
 
 using namespace std;
 
+#include "localExceptions.h"
+
 cellType_t getCellType(string inString)
 {
     inString = inString.substr(1, inString.size() - 2);
@@ -568,7 +570,7 @@ void cellFromYosysJson(json &inJ, string inCellName, module_t *inModule, cell_t 
     {
         if (inJ.contains<string>("attributes"))
         {
-            processAttributesIntoVector(inJ["attributes"], (*outCell)->attributes);
+            processYosysAttributesIntoVector(inJ["attributes"], (*outCell)->attributes);
         }
     }
 }
@@ -586,7 +588,7 @@ port_t *createPort(json inJ, direction_t inDir, string inSignalName, module_t *i
             if (temp != "x")
             {
                 netId = stoi(temp);
-                outPort = new port_t(DirectionInput, inModule->getNetWithId(netId));
+                outPort = new port_t(inDir, inModule->getNetWithId(netId));
             }
             else
             {
@@ -596,7 +598,7 @@ port_t *createPort(json inJ, direction_t inDir, string inSignalName, module_t *i
         else
         {
             netId = inJ["connections"][inSignalName].at(inPos);
-            outPort = new port_t(DirectionInput, inModule->getNetWithId(netId));
+            outPort = new port_t(inDir, inModule->getNetWithId(netId));
         }
     }
     catch (const elementDoesNotExistException &e)

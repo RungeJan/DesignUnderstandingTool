@@ -13,28 +13,9 @@
 
 #include "net.h"
 #include "cell.h"
+#include "nlohmann/json.hpp"
 
-class elementDoesNotExistException : public std::exception
-{
-public:
-    elementDoesNotExistException(std::string element, unsigned int id) : idKnown(true), 
-                                 message("Tried to get a non-existing " + element + " with id " + std::to_string(id)){};
-    elementDoesNotExistException(std::string element) : idKnown(false), message("Tried to get a non-existing " + element){};
-    elementDoesNotExistException() : idKnown(false), message("Tried to get a non-existing unknown element"){};
-
-    virtual ~elementDoesNotExistException(){};
-    virtual const char *what() const throw()
-    {
-        if(idKnown){
-            return message.c_str();
-        }else{
-            return message.c_str();
-        }
-    }
-private:
-    bool idKnown;
-    std::string message;
-};
+using json = nlohmann::json;
 
 struct module_t
 {
@@ -57,6 +38,13 @@ struct module_t
      * @throw elementDoesNotExistException if there is no net with the passed id
      */
     net_t &getNetWithId(unsigned int getBitId);
+
+    /**
+    * @brief This function will parse the struct instance into a json object
+    * 
+    * @return A json object holding the information about this instance
+    */
+    json storeInJson();
 
     std::string name;                                            //<! The name of the module
     std::vector<port_t> ports;                                   //<! The input and output ports to the module, ports are mapped to the internal nets

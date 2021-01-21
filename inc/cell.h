@@ -244,53 +244,73 @@ struct cellAdff_t : public cellDFlipFlop_t{
     port_t arst;                        //<! The port for the A-Reset input       
 };
 
+/**
+ * @brief This struct represents a constant assignment
+ */
 struct cellConstAssign_t : public cell_t{
     cellConstAssign_t(std::string newName, bool hide, cellType_t newType, unsigned int newWidth) : cell_t(newName, hide, newType){};
 
-    unsigned int width;
-    std::vector<port_t> y;
+    unsigned int width;         //<! The width of the constant value
+    std::vector<port_t> y;      //<! The output port holding the value
 };
 
+/**
+ * @brief This struct represents an ALU unit
+ * It is based on a normal arithmetic operation, but with additional signals:
+ * carry in
+ * carry out
+ */
 struct cellAlu_t : public cellArithmetic_t{
 
     cellAlu_t(std::string newName, bool hide, const bool inASigned, const bool inBSigned, const unsigned int inAWidth,
                const unsigned int inBWidth, const unsigned int inYWidth, port_t newCi, port_t newBi) : ci(newCi), bi(newBi),
               cellArithmetic_t(newName, hide, TypeAlu, inASigned, inBSigned, inAWidth, inBWidth, inYWidth){};
 
-    port_t ci;
+    port_t ci;                  //<! The pin for the carry in signal
     port_t bi;
     std::vector<port_t> x;
-    std::vector<port_t> co;
+    std::vector<port_t> co;     //<! The pins for the carry out signal
 };
 
+/**
+ * @brief This struct represents cells with an A and an Enable port
+ * Belonging Types:
+ * TypeAssert, TypeAssume, TypeCover, TypeFair, TypeLive
+ */
 struct cellAEn_t : public cell_t{
 
     cellAEn_t(std::string newName, bool hide, const cellType_t type, port_t newA, port_t newEn) : a(newA), en(newEn), cell_t(newName, hide, type){};
 
-    port_t a;
-    port_t en;
+    port_t a;       //<! The a port of this cell
+    port_t en;      //<! The enable port of this cell
 };
 
+/**
+ * @brief This struct represents a cell concatinating two signals
+ */
 struct cellConcat_t : public cell_t{
 
     cellConcat_t(std::string newName, bool hide, unsigned int newAWidth, unsigned int newBWidth) : aWidth(newAWidth), bWidth(newBWidth), cell_t(newName, hide, TypeConcat){};
 
-    const unsigned int aWidth;
-    const unsigned int bWidth;
+    const unsigned int aWidth;  //<! The width of the input a
+    const unsigned int bWidth;  //<! the width of the input b
 
-    std::vector<port_t> a;
-    std::vector<port_t> b;
-    std::vector<port_t> y;
+    std::vector<port_t> a;      //<! The input ports a
+    std::vector<port_t> b;      //<! The input ports b
+    std::vector<port_t> y;      //<! The output ports y, width is aWidth+bWidth
 
 };
 
+/**
+ * @brief This struct represents an equiv cell. It will set an output to the inputs value if they are the same otherwise to don't care
+ */
 struct cellEquiv_t : public cell_t{
 
     cellEquiv_t(std::string newName, bool hide, port_t newA, port_t newB, port_t newY) : a(newA), b(newB), y(newY), cell_t(newName, hide, TypeEquiv){};
 
-    port_t a;
-    port_t b;
-    port_t y;
+    port_t a;   //<! The a input pin
+    port_t b;   //<! The b input pin
+    port_t y;   //<! The y output pin
 };
 
 struct cellFa_t : public cell_t{
