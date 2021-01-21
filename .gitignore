@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# Paths
+./json
+./bin
+./verilog
+./vscode
