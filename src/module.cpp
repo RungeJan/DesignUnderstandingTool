@@ -44,14 +44,13 @@ json module_t::storeInJson()
 
     if (this->ports.empty() == false)
     {
-        int i = 1;
         vector<port_t>::iterator it = this->ports.begin();
         while (it != this->ports.end())
         {
-            string tempName = "port_" + to_string(i);
+            string tempId = it->portRefId < 10 ? "00" + to_string(it->portRefId) : it->portRefId < 100 ? "0" + to_string(it->portRefId) : to_string(it->portRefId);
+            string tempName = "port_" + tempId;
             description["ports"][tempName] =  it->storeInJson();
             it++;
-            i++;
         }
     }
 
@@ -61,7 +60,8 @@ json module_t::storeInJson()
         vector<net_t>::iterator it = this->netsInternal.begin();
         while (it != this->netsInternal.end())
         {
-            string tempName = "net_" + to_string(i);
+            string tempId = it->netRefId < 10 ? "00" + to_string(it->netRefId) : it->netRefId < 100 ? "0" + to_string(it->netRefId) : to_string(it->netRefId);
+            string tempName = "net_" + tempId;
             description["nets"][tempName] =  it->storeInJson();
             it++;
             i++;
@@ -72,8 +72,21 @@ json module_t::storeInJson()
         int i = 1;
         vector<module_t>::iterator it = this->usedModules.begin();
         while(it != this->usedModules.end()){
-            string tempName = "module_" + to_string(i);
+            string tempId = i < 10 ? "0" + to_string(i) : to_string(i) ;
+            string tempName = "module_" + tempId;
             description["modules"][tempName] = it->storeInJson();
+            it++;
+            i++;
+        }
+    }
+
+    if(this->cells.empty() == false){
+        int i = 1;
+        vector<cell_t *>::iterator it = this->cells.begin();
+        while(it != this->cells.end()){
+            string tempId = i < 10 ? "00" + to_string(i) : i < 100 ? "0" + to_string(i) : to_string(i);
+            string tempName = "cell_" + tempId;
+            description["cells"][tempName] = (*it)->storeInJson();
             it++;
             i++;
         }

@@ -100,6 +100,23 @@ enum cellType_t
     TypeUnknown
 };
 
+/**
+ * @brief This function will return the cellType_t belonging to a string version of it
+ * 
+ * @param inString The string for which the cellType_t should be returned
+ * 
+ * @return The cellType_t beloning to the string
+ */
+cellType_t getCellType(std::string inString);
+
+/**
+ * @brief This function will return a string belonging to the cellType_t version of it
+ * 
+ * @param inType The cellType_t for which the string should be returned
+ * 
+ * @return The string beloning to the cellType_t
+ */
+std::string getCellType(cellType_t inType);
 
 /**
  * @brief This struct serves as a base struct for all further cell implementations
@@ -109,8 +126,11 @@ struct cell_t
     cell_t(std::string newName, bool hide, cellType_t newType) : name(newName), hideName(hide), type(newType){};
     const std::string name; //!< The name of this cell
     const bool hideName;    //!< true, if this cells name should be hidden, false otherwise
-    const cellType_t type;  //!< the exact type of this cell
+    const cellType_t type;  //!< The exact type of this cell
     std::vector<std::pair<std::string, std::string>> attributes; //!< All the attributes given to the cell
+
+    json storeInJson();
+    virtual json storeAdditionalInJson() = 0;
 };
 /**
  * @brief This struct servers as a representation for all cells of arithmetic type 
@@ -125,6 +145,8 @@ struct cellArithmetic_t : public cell_t{
               const unsigned int inAWidth, const unsigned int inBWidth, const unsigned int inYWidth) : 
                 aSigned(inASigned), bSigned(inBSigned), aWidth(inAWidth), bWidth(inBWidth), yWidth(inYWidth), 
                 cell_t(newName, hide, newType){};
+
+    json storeAdditionalInJson();
     const bool aSigned;         //!< true, if a is a signed value, false otherwise
     const bool bSigned;         //!< true, if b is a signed value, false otherwise
     const unsigned int aWidth;  //!< The width of input a
@@ -146,8 +168,10 @@ struct cellArithmetic_t : public cell_t{
  */
 struct cellDFlipFlop_t : public cell_t{
 
-    cellDFlipFlop_t(std::string newName, bool hide, const unsigned int newWidth, const unsigned int newClkPolarity, cellType_t newType, port_t newClk) :
-        width(newWidth), clkPolarity(newClkPolarity), clk(newClk), cell_t(newName, hide, newType){};
+    cellDFlipFlop_t(std::string newName, bool hide, const unsigned int newWidth, const unsigned int newClkPolarity, 
+                    cellType_t newType, port_t newClk) : width(newWidth), clkPolarity(newClkPolarity), clk(newClk), cell_t(newName, hide, newType){};
+
+    virtual json storeAdditionalInJson();
 
     const unsigned int width;       //!< The width of D and Q
     const unsigned int clkPolarity; //!< The polarity of the CLK
@@ -162,6 +186,8 @@ struct cellDFlipFlop_t : public cell_t{
 struct cellDFlipFlopEnable_t : public cellDFlipFlop_t{
     cellDFlipFlopEnable_t(std::string newName, bool hide, const unsigned int newWidth, const unsigned int newClkPolarity, const unsigned int newEnPolarity, cellType_t newType,
                           port_t newClk, port_t newEn) : enPolarity(newEnPolarity), en(newEn), cellDFlipFlop_t(newName, hide, newWidth, newClkPolarity, newType, newClk) {};
+
+    json storeAdditionalInJson();
 
     const unsigned int enPolarity;  //!< The polarity of the enable pin
     port_t en;                      //!< The port working as the enable pin
@@ -178,11 +204,31 @@ struct cellDFlipFlopSetReset_t : cellDFlipFlop_t {
                             unsigned int newClrPolarity, cellType_t newType, port_t newClk) : setPolarity(newSetPolarity), clrPolarity(newClrPolarity),  
                             cellDFlipFlop_t(newName, hide, newWidth, newClkPolarity, newType, newClk) {};
 
+    json storeAdditionalInJson();
+    
     const unsigned int setPolarity;     //!< The polarity of the set pin
     const unsigned int clrPolarity;     //!< The polarity of the clear pin
     std::vector<port_t> set;            //!< The port working as the set pin, has the width of the D-FlipFlop it is inherited from
     std::vector<port_t> clr;            //!< The port working as the clr pin, has the width of the D-FlipFlop it is inherited from
 };
+
+/**
+ * @brief This struct represents an A-Reset-D-FlipFlop
+ * This flipflops output will be set to a certain value when a reset is triggered. otherwise it behaves like a D-Flip-Flop
+ */
+
+struct cellAdff_t : public cellDFlipFlop_t{
+    cellAdff_t(std::string newName, bool hide, unsigned int newWidth, unsigned int newClkPolarity, unsigned int newArstPolarity, unsigned int newArstValue,
+               port_t newClk, port_t newArst) : arstPolarity(newArstPolarity), arstValue(newArstValue), arst(newArst), 
+               cellDFlipFlop_t(newName, hide, newWidth, newClkPolarity,TypeAdff, newClk) {};
+
+    json storeAdditionalInJson();
+
+    const unsigned int arstPolarity;    //!< The polarity of the A-Reset signal
+    const unsigned int arstValue;       //!< The value to which Q will be resetted
+    port_t arst;                        //!< The port for the A-Reset input       
+};
+
 
 /**
  * @brief This struct represents a D-FlipFlip but with an global clock
@@ -191,6 +237,8 @@ struct cellDFlipFlopSetReset_t : cellDFlipFlop_t {
 struct cellFlipFlop_t : public cell_t{ // TODO Add global clock ?
 
     cellFlipFlop_t(std::string newName, bool hide, unsigned int newWidth) : width(newWidth), cell_t(newName, hide, TypeFf){};
+
+    json storeAdditionalInJson();
 
     const unsigned int width;   //!< The width of D and Q
     std::vector<port_t> d;      //!< The input pins D
@@ -205,6 +253,8 @@ struct cellDLatch_t : public cell_t{
 
     cellDLatch_t(std::string newName, bool hide,  cellType_t newType, const unsigned int newWidth, const unsigned int newEnPolarity, port_t newEn) : width(newWidth), enPolarity(newEnPolarity),
                  en(newEn), cell_t(newName, hide, newType){};
+
+    virtual json storeAdditionalInJson();
 
     const unsigned int width;       //!< The width of D and Q
     const unsigned int enPolarity;  //!< The polarity of the enable pin
@@ -222,6 +272,8 @@ struct cellDLatchSR_t : public cellDLatch_t{
                    unsigned int newSetPolarity, unsigned int newClrPolarity) : setPolarity(newSetPolarity), clrPolarity(newClrPolarity),
                    cellDLatch_t(newName, hide, newType, newWidth, newEnPolarity, newEn){};
 
+    json storeAdditionalInJson();
+
     const unsigned int setPolarity;     //!< The polarity of the set pin
     const unsigned int clrPolarity;     //!< The polarity of the clear pin
 
@@ -230,25 +282,12 @@ struct cellDLatchSR_t : public cellDLatch_t{
 };
 
 /**
- * @brief This struct represents an A-Reset-D-FlipFlop
- * This flipflops output will be set to a certain value when a reset is triggered. otherwise it behaves like a D-Flip-Flop
- */
-
-struct cellAdff_t : public cellDFlipFlop_t{
-    cellAdff_t(std::string newName, bool hide, unsigned int newWidth, unsigned int newClkPolarity, unsigned int newArstPolarity, unsigned int newArstValue,
-               port_t newClk, port_t newArst) : arstPolarity(newArstPolarity), arstValue(newArstValue), arst(newArst), 
-               cellDFlipFlop_t(newName, hide, newWidth, newClkPolarity,TypeAdff, newClk) {};
-
-    const unsigned int arstPolarity;    //!< The polarity of the A-Reset signal
-    const unsigned int arstValue;       //!< The value to which Q will be resetted
-    port_t arst;                        //!< The port for the A-Reset input       
-};
-
-/**
  * @brief This struct represents a constant assignment
  */
 struct cellConstAssign_t : public cell_t{
     cellConstAssign_t(std::string newName, bool hide, cellType_t newType, unsigned int newWidth) : cell_t(newName, hide, newType){};
+
+    json storeAdditionalInJson();
 
     unsigned int width;         //!< The width of the constant value
     std::vector<port_t> y;      //!< The output port holding the value
@@ -266,6 +305,8 @@ struct cellAlu_t : public cellArithmetic_t{
                const unsigned int inBWidth, const unsigned int inYWidth, port_t newCi, port_t newBi) : ci(newCi), bi(newBi),
               cellArithmetic_t(newName, hide, TypeAlu, inASigned, inBSigned, inAWidth, inBWidth, inYWidth){};
 
+    json storeAdditionalInJson();
+
     port_t ci;                  //!< The pin for the carry in signal
     port_t bi;
     std::vector<port_t> x;
@@ -281,6 +322,8 @@ struct cellAEn_t : public cell_t{
 
     cellAEn_t(std::string newName, bool hide, const cellType_t type, port_t newA, port_t newEn) : a(newA), en(newEn), cell_t(newName, hide, type){};
 
+    json storeAdditionalInJson();
+
     port_t a;       //!< The a port of this cell
     port_t en;      //!< The enable port of this cell
 };
@@ -291,6 +334,8 @@ struct cellAEn_t : public cell_t{
 struct cellConcat_t : public cell_t{
 
     cellConcat_t(std::string newName, bool hide, unsigned int newAWidth, unsigned int newBWidth) : aWidth(newAWidth), bWidth(newBWidth), cell_t(newName, hide, TypeConcat){};
+
+    json storeAdditionalInJson();
 
     const unsigned int aWidth;  //!< The width of the input a
     const unsigned int bWidth;  //!< the width of the input b
@@ -308,6 +353,8 @@ struct cellEquiv_t : public cell_t{
 
     cellEquiv_t(std::string newName, bool hide, port_t newA, port_t newB, port_t newY) : a(newA), b(newB), y(newY), cell_t(newName, hide, TypeEquiv){};
 
+    json storeAdditionalInJson();
+
     port_t a;   //!< The a input pin
     port_t b;   //!< The b input pin
     port_t y;   //!< The y output pin
@@ -317,13 +364,15 @@ struct cellFa_t : public cell_t{
 
     cellFa_t(std::string newName, bool hide, unsigned int newWidth) : width(newWidth), cell_t(newName, hide, TypeFa){};
 
-    const unsigned int width;
+    json storeAdditionalInJson();
 
-    std::vector<port_t> a;
-    std::vector<port_t> b;
-    std::vector<port_t> c;
-    std::vector<port_t> x;
-    std::vector<port_t> y;
+    const unsigned int width;   //!< The width of all the ports
+
+    std::vector<port_t> a;      //!< The ports acting as the a input
+    std::vector<port_t> b;      //!< The ports acting as the b input
+    std::vector<port_t> c;      //!< The ports acting as the c input
+    std::vector<port_t> x;      //!< The ports acting as the x output
+    std::vector<port_t> y;      //!< The ports acting as the y output
 };
 
 struct cellFsm_t : public cell_t{
@@ -333,6 +382,9 @@ struct cellFsm_t : public cell_t{
               unsigned int newTransTable, port_t newClk, port_t newArst) : clkPolarity(newClkPolarity), arstPolarity(newArstPolarity), ctrlInWidth(newCtrlInWidth),
               ctrlOutWidth(newCtrlOutWidth), stateBits(newStateBits), stateNum(newStateNum), stateNumLog2(newStateNumLog2), stateRst(newStateRst), stateTable(newStateTable),
               transNum(newTransNum), transTable(newTransTable), clk(newClk), arst(newArst), cell_t(newName, hide, TypeFsm){};
+    
+    json storeAdditionalInJson();
+    
     const unsigned int clkPolarity;
     const unsigned int arstPolarity;
     const unsigned int ctrlInWidth;
@@ -356,11 +408,15 @@ struct cellInitState_t : public cell_t{
 
     cellInitState_t(std::string newName, bool hide, port_t newY) : y(newY), cell_t(newName, hide, TypeInitState){};
 
+    json storeAdditionalInJson();
+
     port_t y;
 };
 
 struct cellLcu_t : public cell_t{
     cellLcu_t(std::string newName, bool hide,unsigned int newWidth, port_t newCi) : width(newWidth), ci(newCi), cell_t(newName, hide, TypeLcu){};
+
+    json storeAdditionalInJson();
 
     const unsigned int width;
 
@@ -376,6 +432,8 @@ struct cellAY_t : public cell_t{
     cellAY_t(std::string newName, bool hide, cellType_t newType, unsigned int newASigned, unsigned int newAWidth, unsigned int newYWidth) : aSigned(newASigned),
              aWidth(newAWidth), yWidth(newYWidth), cell_t(newName, hide, newType){};
     
+    json storeAdditionalInJson();
+    
     const bool aSigned;
     const unsigned int aWidth;
     const unsigned int yWidth;
@@ -388,6 +446,9 @@ struct cellLut_t : public cell_t{
     
     cellLut_t(std::string newName, bool hide, unsigned int newWidth, unsigned int newLut, port_t newY) : width(newWidth), lut(newLut), y(newY), 
               cell_t(newName, hide, TypeLut){};
+    
+    json storeAdditionalInJson();
+    
     const unsigned int width;
     const unsigned int lut;
 
@@ -400,6 +461,9 @@ struct cellMacc_t : public cell_t{
     cellMacc_t(std::string newName, bool hide, const unsigned int inAWidth, const unsigned int inBWidth, const unsigned int inYWidth, 
                const unsigned int inConfig, const unsigned int inConfigWidth) : aWidth(inAWidth), bWidth(inBWidth), yWidth(inYWidth),
                config(inConfig), configWidth(inConfigWidth), cell_t(newName, hide, TypeMacc){};
+    
+    json storeAdditionalInJson();
+
     const unsigned int aWidth;
     const unsigned int bWidth;
     const unsigned int yWidth;
@@ -419,6 +483,8 @@ struct cellMem_t : public cell_t{
               memId(inMemId), size(inSize), offset(inOffset), aBits(inABits), width(inWidth), init(inInit), rdPorts(inRdPorts), rdClkEnable(inRdClkEnable),
               rdClkPolarity(inRdClkPolarity), rdTransparent(inRdTransparent), wrPorts(inWrPorts), wrClkEnable(inWrClkEnable), wrClkPolarity(inWrClkPolarity),
               cell_t(newName, hide, TypeMem) {};
+
+    json storeAdditionalInJson();
 
     const unsigned int memId;
     const int size;
@@ -450,6 +516,8 @@ struct cellMemInit_t : public cell_t{
                   const unsigned int inWords, const unsigned int inPriority) : memId(inMemId), aBits(inABits), width(inWidth), words(inWords),
                   priority(inPriority), cell_t(newName, hide, TypeMemInit){};
 
+    json storeAdditionalInJson();
+
     const unsigned int memId;
     const unsigned int aBits;
     const unsigned int width;
@@ -466,6 +534,8 @@ struct cellMemRd_t : public cell_t{
                   const unsigned int inClkEnable, const unsigned int inClkPolarity, const unsigned int inTransparnt, port_t inClk, port_t inEn) : 
                   memId(inMemId), aBits(inABits), width(inWidth), clkEnable(inClkEnable), clkPolarity(inClkPolarity), transparent(inTransparnt), 
                   clk(inClk), en(inEn), cell_t(newName, hide, TypeMemInit){};
+
+    json storeAdditionalInJson();
 
     const unsigned int memId;
     const unsigned int aBits;
@@ -488,6 +558,8 @@ struct cellMemWr_t : public cell_t{
                   memId(inMemId), aBits(inABits), width(inWidth), clkEnable(inClkEnable), clkPolarity(inClkPolarity), transparent(inTransparnt), 
                   clk(inClk), cell_t(newName, hide, TypeMemInit){};
 
+    json storeAdditionalInJson();
+
     const unsigned int memId;
     const unsigned int aBits;
     const unsigned int width;
@@ -506,6 +578,8 @@ struct cellMux_t : public cell_t{
 
     cellMux_t(std::string newName, bool hide, const unsigned int inWidth, port_t inS) : width(inWidth), s(inS), cell_t(newName, hide, TypeMux){};
 
+    json storeAdditionalInJson();
+
     const unsigned int width;
     port_t s;
 
@@ -521,6 +595,8 @@ struct cellPMux_t : public cell_t{
     const unsigned int width;
     const unsigned int sWidth;
 
+    json storeAdditionalInJson();
+
     std::vector<port_t> s;
     std::vector<port_t> a;
     std::vector<port_t> b;
@@ -531,6 +607,8 @@ struct cellSlice_t : public cell_t{
 
     cellSlice_t(std::string newName, bool hide, const unsigned int inOffset, const unsigned int inAWidth, const unsigned int inYWidth) : offset(inOffset),
                 aWidth(inAWidth), yWidth(inYWidth), cell_t(newName, hide, TypeSlice){};
+
+    json storeAdditionalInJson();
 
     const unsigned int offset;
     const unsigned int aWidth;
@@ -543,6 +621,8 @@ struct cellSlice_t : public cell_t{
 struct cellSop_t : public cell_t{
 
     cellSop_t(std::string newName, bool hide, const unsigned int inWidth, const unsigned int inDepth, port_t inY) : width(inWidth), depth(inDepth), y(inY), cell_t(newName, hide, TypeSop){};
+
+    json storeAdditionalInJson();
 
     const unsigned int width;
     const unsigned int depth;
@@ -560,6 +640,8 @@ struct cellSpecify2_t : public cell_t{
                    const unsigned int inTFallTyp, const unsigned int inTFallMax, port_t inEn) : full(inFull), srcWidth(inSrcWidth), dstWidth(inDstWidth), srcDstPen(inSrcDstPen),
                    srcDstPol(inSrcDstPol), tRiseMin(inTRiseMin), tRiseTyp(inTRiseTyp), tRiseMax(inTRiseMax), tFallMin(inTFallMin), tFallTyp(inTFallTyp), tFallMax(inTFallMax), 
                    en(inEn), cell_t(newName, hide, newType){};
+
+    json storeAdditionalInJson();
 
     const unsigned int full;
     const unsigned int srcWidth;
@@ -586,6 +668,8 @@ struct cellSpecify3_t : public cellSpecify2_t{
                    const unsigned int inDatDstPol, port_t inEn) : edgeEn(inEdgeEn), edgePol(inEdgePol), datDstPen(inDatDstPen), datDstPol(inDatDstPol), cellSpecify2_t(newName, hide, 
                    newType, inFull, inSrcWidth, inDstWidth, inSrcDstPen, inSrcDstPol, inTRiseMin, inTRiseTyp, inTRiseMax, inTFallMin, inTFallTyp, inTFallMax, inEn){};
 
+    json storeAdditionalInJson();
+
     const unsigned int edgeEn;
     const unsigned int edgePol;
     const unsigned int datDstPen;
@@ -597,6 +681,8 @@ struct cellSpecify3_t : public cellSpecify2_t{
 struct cellTriBuf_t : public cell_t{
 
     cellTriBuf_t(std::string newName, bool hide, const unsigned int inWidth, port_t inEn) : width(inWidth), en(inEn), cell_t(newName, hide, TypeTriBuf){};
+
+    json storeAdditionalInJson();
 
     const unsigned int width;
 
@@ -610,6 +696,8 @@ struct cellSr_t : public cell_t{
     cellSr_t(std::string newName, bool hide, const unsigned int inWidth, const unsigned char inSetPolarity, const unsigned char inClrPolarity) : width(inWidth),
              setPolarity(inSetPolarity), clrPolarity(inClrPolarity), cell_t(newName, hide, TypeSr){};
 
+    json storeAdditionalInJson();
+    
     const unsigned int width;
     const unsigned char setPolarity;
     const unsigned char clrPolarity;
@@ -618,39 +706,5 @@ struct cellSr_t : public cell_t{
     std::vector<port_t> clr;
     std::vector<port_t> q;
 };
-
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cell_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellDFlipFlop_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellDFlipFlopEnable_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellDFlipFlopSetReset_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellFlipFlop_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellAdff_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellAlu_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellConcat_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellDLatch_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellDLatchSR_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellEquiv_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellFa_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellFsm_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellInitState_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellLcu_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellLut_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellMacc_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellMem_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellMemInit_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellMemRd_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellMemWr_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellMux_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellPMux_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellSlice_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellSop_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellSpecify2_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellSpecify3_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellTriBuf_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellSr_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, const cellType_t inCellType, module_t *inModule, cellArithmetic_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, const cellType_t inCellType, module_t *inModule, cellConstAssign_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, const cellType_t inCellType, module_t *inModule, cellAEn_t **outCell);
-void cellFromYosysJson(json &inJ, const std::string inCellName, const cellType_t inCellType, module_t *inModule, cellAY_t **outCell);
 
 #endif // CELL_H_

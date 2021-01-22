@@ -7,6 +7,7 @@
 #include "net.h"
 #include "cell.h"
 #include "localExceptions.h"
+#include "yosysJson.h"
 
 using namespace std;
 
@@ -23,7 +24,7 @@ port_t *createPort(json inJ, direction_t inDir, module_t *inModule, int inPos = 
             if (temp != "x")
             {
                 netId = stoi(temp);
-                outPort = new port_t(inDir, inModule->getNetWithId(netId));
+                outPort = new port_t(inDir, inModule->numberOfPorts, inModule->getNetWithId(netId));
             }
             else
             {
@@ -33,7 +34,7 @@ port_t *createPort(json inJ, direction_t inDir, module_t *inModule, int inPos = 
         else
         {
             netId = inJ["bits"].at(inPos);
-            outPort = new port_t(inDir, inModule->getNetWithId(netId));
+            outPort = new port_t(inDir, inModule->numberOfPorts, inModule->getNetWithId(netId));
         }
     }
     catch (const elementDoesNotExistException &e)
@@ -100,7 +101,7 @@ void processYosysNetsIntoVector(json &inJson, module_t *inModule)
         int numberOfBits = (*it)["bits"].size();
         if (1 == numberOfBits)
         {
-            newNet = new net_t(netName, (*it)["bits"].at(0), (*it)["hide_name"] == 1 ? true : false);
+            newNet = new net_t(netName, (*it)["bits"].at(0), inModule->numberOfNets++, (*it)["hide_name"] == 1 ? true : false);
             if ((*it)["attributes"].size() > 0)
             {
                 processYosysAttributesIntoVector((*it)["attributes"], newNet->attributes);
@@ -111,7 +112,7 @@ void processYosysNetsIntoVector(json &inJson, module_t *inModule)
         {
             for (int j = 0; j < numberOfBits; j++)
             {
-                newNet = new net_t(netName + "[" + to_string(j) + "]", (*it)["bits"].at(j), (*it)["hide_name"] == 1 ? true : false);
+                newNet = new net_t(netName + "[" + to_string(j) + "]", (*it)["bits"].at(j), inModule->numberOfNets++, (*it)["hide_name"] == 1 ? true : false);
                 if ((*it)["attributes"].size() > 0)
                 {
                     processYosysAttributesIntoVector((*it)["attributes"], newNet->attributes);

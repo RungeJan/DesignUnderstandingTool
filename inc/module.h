@@ -19,6 +19,8 @@ using json = nlohmann::json;
 
 struct module_t
 {
+    module_t() : numberOfNets(2), numberOfPorts(2), numberOfCells(0){};
+
     // External known information
     /**
      * @brief This function will check if a net with the given id is already represented in the module 
@@ -45,7 +47,7 @@ struct module_t
     * @return A json object holding the information about this instance
     */
     json storeInJson();
-    
+
     std::string name;                                            //!< The name of the module
     std::vector<port_t> ports;                                   //!< The input and output ports to the module, ports are mapped to the internal nets
     std::vector<std::pair<std::string, std::string>> attributes; //!< All the attributes given to the module
@@ -54,6 +56,10 @@ struct module_t
     // Internal known information
     std::vector<net_t> netsInternal;      //!< All the nets that are used inside the module
     std::vector<module_t> usedModules;    //!< All the modules that are used in this module
+
+    unsigned int numberOfNets;          //!< A counter for the nets of this module
+    unsigned int numberOfPorts;         //!< A counter for the ports of this module
+    unsigned int numberOfCells;         //!< A counter for the cells of this module
 };
 
 #endif //MODULE_H_

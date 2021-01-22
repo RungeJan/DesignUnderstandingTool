@@ -15,7 +15,6 @@
 
 using json = nlohmann::json;
 
-
 enum direction_t {DirectionInput, DirectionOutput, DirectionInOut};
 
 /**
@@ -23,7 +22,7 @@ enum direction_t {DirectionInput, DirectionOutput, DirectionInOut};
  */
 struct net_t{
 
-    net_t(std::string newName, const unsigned int newId, const bool inHideName):name(newName), bitId(newId), hideName(inHideName){};
+    net_t(std::string newName, const unsigned int newId, const unsigned int newRefId, const bool inHideName):name(newName), bitId(newId), netRefId(newRefId), hideName(inHideName){};
 
     /**
      * @brief This function will parse the struct instance into a json object
@@ -32,15 +31,16 @@ struct net_t{
      */
     json storeInJson();       
 
-    std::string name;           //!< The name under which this net can be found in code
-    const unsigned int bitId;   //!< A unique identifier for this net
-    const bool hideName;        //!<true, if the name should be hidden, false otherwise
+    std::string name;               //!< The name under which this net can be found in code
+    const unsigned int bitId;       //!< A unique identifier for this net, given by Yosys, global
+    const unsigned int netRefId;    //!< A unique identifier for this net, given by this tool, local within a module
+    const bool hideName;            //!< true, if the name should be hidden, false otherwise
     std::vector<std::pair<std::string, std::string>> attributes;    //!< A list of attributes for the net
 };
 
 struct port_t{
 
-    port_t(direction_t newDirection, net_t & newNet) : direction(newDirection), net(newNet){};
+    port_t(direction_t newDirection, unsigned int newRefId, net_t & newNet) : direction(newDirection), net(newNet), portRefId(newRefId){};
 
     /**
      * @brief This function will parse the struct instance into a json object
@@ -51,6 +51,7 @@ struct port_t{
 
     net_t &net;             //!< The net this port belongs to
     direction_t direction;  //!< The direction of this port
+    unsigned int portRefId; //!< A unique identifier for this port, given by this tool, local within modules, cells, etc.
 };
 
 extern net_t zeroNet;   //!< A net represetning an connection which is always logical 0

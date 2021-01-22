@@ -1,13 +1,15 @@
-#include "cell.h"
-#include "module.h"
-#include "processing.h"
+
 #include <string>
 #include <vector>
 #include <iostream>
 
-using namespace std;
-
 #include "localExceptions.h"
+#include "cell.h"
+#include "module.h"
+#include "processing.h"
+#include "yosysJson.h"
+
+using namespace std;
 
 cellType_t getCellType(string inString)
 {
@@ -353,12 +355,411 @@ cellType_t getCellType(string inString)
     return TypeUnknown;
 }
 
-void cellFromYosysJson(json &inJ, string inCellName, module_t *inModule, cell_t **outCell)
+string getCellType(cellType_t inType)
 {
-    const cellType_t type = getCellType(inJ["type"].dump());
-    switch (type)
+    switch (inType)
     {
-    // Cells with ports (A, B, Y)
+    case TypeAdd:
+    {
+        return "$add";
+        break;
+    }
+    case TypeAdff:
+    {
+        return "$adff";
+        break;
+    }
+    case TypeAllConst:
+    {
+        return "$allconst";
+        break;
+    }
+    case TypeAllSeq:
+    {
+        return "$allseq";
+        break;
+    }
+    case TypeAlu:
+    {
+        return "$alu";
+        break;
+    }
+    case TypeAnd:
+    {
+        return "$and";
+        break;
+    }
+    case TypeAnyConst:
+    {
+        return "$anyconst";
+        break;
+    }
+    case TypeAnySeq:
+    {
+        return "$anyseq";
+        break;
+    }
+    case TypeAssert:
+    {
+        return "$assert";
+        break;
+    }
+    case TypeAssume:
+    {
+        return "$assume";
+        break;
+    }
+    case TypeConcat:
+    {
+        return "$concat";
+        break;
+    }
+    case TypeCover:
+    {
+        return "$cover";
+        break;
+    }
+    case TypeDff:
+    {
+        return "$dff";
+        break;
+    }
+    case TypeDffe:
+    {
+        return "$dffe";
+        break;
+    }
+    case TypeDffsr:
+    {
+        return "$dffsr";
+        break;
+    }
+    case TypeDiv:
+    {
+        return "$div";
+        break;
+    }
+    case TypeDLatch:
+    {
+        return "$dlatch";
+        break;
+    }
+    case TypeDLatchSR:
+    {
+        return "$dlatchsr";
+        break;
+    }
+    case TypeEq:
+    {
+        return "$eq";
+        break;
+    }
+    case TypeEquiv:
+    {
+        return "$equiv";
+        break;
+    }
+    case TypeEqx:
+    {
+        return "$eqx";
+        break;
+    }
+    case TypeFa:
+    {
+        return "$fa";
+        break;
+    }
+    case TypeFair:
+    {
+        return "$fair";
+        break;
+    }
+    case TypeFf:
+    {
+        return "$ff";
+        break;
+    }
+    case TypeFsm:
+    {
+        return "$fsm";
+        break;
+    }
+    case TypeGe:
+    {
+        return "$ge";
+        break;
+    }
+    case TypeGt:
+    {
+        return "$gt";
+        break;
+    }
+    case TypeInitState:
+    {
+        return "$initstate";
+        break;
+    }
+    case TypeLcu:
+    {
+        return "$lcu";
+        break;
+    }
+    case TypeLe:
+    {
+        return "$le";
+        break;
+    }
+    case TypeLive:
+    {
+        return "$live";
+        break;
+    }
+    case TypeLogicAnd:
+    {
+        return "$logic_and";
+        break;
+    }
+    case TypeLogicNot:
+    {
+        return "$logic_not";
+        break;
+    }
+    case TypeLogicOr:
+    {
+        return "$logic_or";
+        break;
+    }
+    case TypeLt:
+    {
+        return "$lt";
+        break;
+    }
+    case TypeLut:
+    {
+        return "$lut";
+        break;
+    }
+    case TypeMacc:
+    {
+        return "$macc";
+        break;
+    }
+    case TypeMem:
+    {
+        return "$mem";
+        break;
+    }
+    case TypeMemInit:
+    {
+        return "$meminit";
+        break;
+    }
+    case TypeMemRd:
+    {
+        return "$memrd";
+        break;
+    }
+    case TypeMemWr:
+    {
+        return "$memwr";
+        break;
+    }
+    case TypeMod:
+    {
+        return "$mod";
+        break;
+    }
+    case TypeMul:
+    {
+        return "$mul";
+        break;
+    }
+    case TypeMux:
+    {
+        return "$mux";
+        break;
+    }
+    case TypeNe:
+    {
+        return "$ne";
+        break;
+    }
+    case TypeNeg:
+    {
+        return "$neg";
+        break;
+    }
+    case TypeNex:
+    {
+        return "$nex";
+        break;
+    }
+    case TypeNot:
+    {
+        return "$not";
+        break;
+    }
+    case TypeOr:
+    {
+        return "$or";
+        break;
+    }
+    case TypePMux:
+    {
+        return "$pmux";
+        break;
+    }
+    case TypePos:
+    {
+        return "$pos";
+        break;
+    }
+    case TypePow:
+    {
+        return "$pow";
+        break;
+    }
+    case TypeReduceAnd:
+    {
+        return "$reduce_and";
+        break;
+    }
+    case TypeReduceBool:
+    {
+        return "$reduce_bool";
+        break;
+    }
+    case TypeReduceOr:
+    {
+        return "$reduce_or";
+        break;
+    }
+    case TypeReduceXnor:
+    {
+        return "$reduce_xnor";
+        break;
+    }
+    case TypeReduceXor:
+    {
+        return "$reduce_xor";
+        break;
+    }
+    case TypeShift:
+    {
+        return "$shift";
+        break;
+    }
+    case TypeShiftX:
+    {
+        return "$shiftx";
+        break;
+    }
+    case TypeShl:
+    {
+        return "$shl";
+        break;
+    }
+    case TypeShr:
+    {
+        return "$shr";
+        break;
+    }
+    case TypeSlice:
+    {
+        return "$slice";
+        break;
+    }
+    case TypeSop:
+    {
+        return "$sop";
+        break;
+    }
+    case TypeSpecify2:
+    {
+        return "$specify2";
+        break;
+    }
+    case TypeSpecify3:
+    {
+        return "$specify3";
+        break;
+    }
+    case TypeSpecRule:
+    {
+        return "$specrule";
+        break;
+    }
+    case TypeSr:
+    {
+        return "$sr";
+        break;
+    }
+    case TypeSshl:
+    {
+        return "$sshl";
+        break;
+    }
+    case TypeSshr:
+    {
+        return "$sshr";
+        break;
+    }
+    case TypeSub:
+    {
+        return "$sub";
+        break;
+    }
+    case TypeTriBuf:
+    {
+        return "$tribuf";
+        break;
+    }
+    case TypeXnor:
+    {
+        return "$xnor";
+        break;
+    }
+    case TypeXor:
+    {
+        return "$xor";
+        break;
+    }
+    default:
+    {
+        return "unknown";
+        break;
+    }
+    }
+}
+
+
+void fillPortIntoJson(json &inJson, port_t &port)
+{
+            string tempId = port.portRefId < 10 ? "00" + to_string(port.portRefId) : port.portRefId < 100 ? "0" + to_string(port.portRefId) : to_string(port.portRefId);
+            string tempName = "cellPort_" + tempId;
+            inJson[tempName] = port.storeInJson();
+}
+
+void fillPortsIntoJson(json &inJson, vector<port_t> &ports)
+{
+    if (ports.empty() == false)
+    {
+        vector<port_t>::iterator it = ports.begin();
+        while (it != ports.end())
+        {
+            string tempId = it->portRefId < 10 ? "00" + to_string(it->portRefId) : it->portRefId < 100 ? "0" + to_string(it->portRefId) : to_string(it->portRefId);
+            string tempName = "cellPort_" + tempId;
+            inJson[tempName] = it->storeInJson();
+            it++;
+        }
+    }
+}
+
+json cell_t::storeInJson()
+{
+    json description;
+    switch (this->type)
+    {
     case TypeAdd:
     case TypeAnd:
     case TypeDiv:
@@ -386,47 +787,44 @@ void cellFromYosysJson(json &inJ, string inCellName, module_t *inModule, cell_t 
     case TypeXnor:
     case TypeXor:
     {
-        cellFromYosysJson(inJ, inCellName, type, inModule, (cellArithmetic_t **)outCell);
-        break;
+        description = ((cellArithmetic_t *)this)->storeAdditionalInJson();
     }
-    // Cells with port (CLK, D, Q)
     case TypeDff:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellDFlipFlop_t **)outCell);
+       description = ((cellDFlipFlop_t*)this)->storeAdditionalInJson();
         break;
     }
-    // Cells with port (CLK, EN, D, Q)
     case TypeDffe:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellDFlipFlopEnable_t **)outCell);
+        description = ((cellDFlipFlopEnable_t*)this)->storeAdditionalInJson();
         break;
     }
     // Cells with port (CLK, SET, CLR, D, Q)
     case TypeDffsr:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellDFlipFlopSetReset_t **)outCell);
-        break;
+       description = ((cellDFlipFlopSetReset_t*)this)->storeAdditionalInJson();
+       break;
     }
     // Cells for flipflops with global clock
     case TypeFf:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellFlipFlop_t **)outCell);
+        description = ((cellFlipFlop_t*)this)->storeAdditionalInJson();
         break;
     }
     // Cells with port (EN, D, Q)
     case TypeDLatch:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellDLatch_t **)outCell);
+        description = ((cellDLatch_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeDLatchSR:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellDLatchSR_t **)outCell);
+        description = ((cellDLatchSR_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeAdff:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellAdff_t **)outCell);
+        description = ((cellAdff_t*)this)->storeAdditionalInJson();
         break;
     }
     // Cells for constant expressions
@@ -435,12 +833,12 @@ void cellFromYosysJson(json &inJ, string inCellName, module_t *inModule, cell_t 
     case TypeAnyConst:
     case TypeAnySeq:
     {
-        cellFromYosysJson(inJ, inCellName, type, inModule, (cellConstAssign_t **)outCell);
+        description = ((cellConstAssign_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeAlu:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellAlu_t **)outCell);
+        description = ((cellAlu_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeAssert:
@@ -449,32 +847,32 @@ void cellFromYosysJson(json &inJ, string inCellName, module_t *inModule, cell_t 
     case TypeFair:
     case TypeLive:
     {
-        cellFromYosysJson(inJ, inCellName, type, inModule, (cellAEn_t **)outCell);
+        description = ((cellAEn_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeConcat:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellConcat_t **)outCell);
+        description = ((cellConcat_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeEquiv:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellEquiv_t **)outCell);
+        description = ((cellEquiv_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeFsm:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellFsm_t **)outCell);
+        description = ((cellFsm_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeInitState:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellInitState_t **)outCell);
+        description = ((cellInitState_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeLcu:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellLcu_t **)outCell);
+        description = ((cellLcu_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeLogicNot:
@@ -487,77 +885,77 @@ void cellFromYosysJson(json &inJ, string inCellName, module_t *inModule, cell_t 
     case TypeReduceXnor:
     case TypeReduceXor:
     {
-        cellFromYosysJson(inJ, inCellName, type, inModule, (cellAY_t **)outCell);
+        description = ((cellAY_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeLut:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellLut_t **)outCell);
+        description = ((cellLut_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeMacc:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellMacc_t **)outCell);
+        description = ((cellMacc_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeMem:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellMem_t **)outCell);
+        description = ((cellMem_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeMemInit:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellMemInit_t **)outCell);
+        description = ((cellMemInit_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeMemRd:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellMemRd_t **)outCell);
+        description = ((cellMemRd_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeMemWr:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellMemWr_t **)outCell);
+        description = ((cellMemWr_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeMux:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellMux_t **)outCell);
+        description = ((cellMux_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypePMux:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellPMux_t **)outCell);
+        description = ((cellPMux_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeSlice:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellSlice_t **)outCell);
+        description = ((cellSlice_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeSop:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellSop_t **)outCell);
+        description = ((cellSop_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeSpecify2:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellSpecify2_t **)outCell);
+        description = ((cellSpecify2_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeSpecify3:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellSpecify3_t **)outCell);
+        description = ((cellSpecify3_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeTriBuf:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellTriBuf_t **)outCell);
+        description = ((cellTriBuf_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeSr:
     {
-        cellFromYosysJson(inJ, inCellName, inModule, (cellSr_t **)outCell);
+        description = ((cellSr_t*)this)->storeAdditionalInJson();
         break;
     }
     case TypeUnknown:
@@ -566,1189 +964,426 @@ void cellFromYosysJson(json &inJ, string inCellName, module_t *inModule, cell_t 
         break;
     }
     }
-    if (NULL != *outCell)
-    {
-        if (inJ.contains<string>("attributes"))
-        {
-            processYosysAttributesIntoVector(inJ["attributes"], (*outCell)->attributes);
-        }
-    }
+    description["name"] = this->name;
+    description["type"] = getCellType(this->type);
+    description["hide_name"] = this->hideName;
+    description["attributes"] = json(this->attributes);
+    return description;
 }
 
-port_t *createPort(json inJ, direction_t inDir, string inSignalName, module_t *inModule, int inPos = 0)
+json cellArithmetic_t::storeAdditionalInJson()
 {
-    int netId;
-    bool isString = ((inJ["connections"][inSignalName].at(inPos).type()) == json::value_t::string);
-    port_t *outPort = NULL;
-    try
-    {
-        if (isString)
-        {
-            string temp = inJ["connections"][inSignalName].at(inPos);
-            if (temp != "x")
-            {
-                netId = stoi(temp);
-                outPort = new port_t(inDir, inModule->getNetWithId(netId));
-            }
-            else
-            {
-                outPort = &dontCarePort;
-            }
-        }
-        else
-        {
-            netId = inJ["connections"][inSignalName].at(inPos);
-            outPort = new port_t(inDir, inModule->getNetWithId(netId));
-        }
-    }
-    catch (const elementDoesNotExistException &e)
-    {
-        cerr << e.what() << endl;
-    }
-    return outPort;
+    json description;
+    description["parameters"]["A_SIGNED"] = this->aSigned == true ? 1 : 0;
+    description["parameters"]["B_SIGNED"] = this->aSigned == true ? 1 : 0;
+    description["parameters"]["A_WIDTH"] = this->aWidth;
+    description["parameters"]["B_WIDTH"] = this->bWidth;
+    description["parameters"]["Y_WIDTH"] = this->yWidth;
+    fillPortsIntoJson(description["ports"]["A"], this->a);
+    fillPortsIntoJson(description["ports"]["B"], this->b);
+    fillPortsIntoJson(description["ports"]["Y"], this->y);
+
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const string inCellName, const cellType_t inCellType, module_t *inModule, cellArithmetic_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellDFlipFlop_t::storeAdditionalInJson(){
 
-    *outCell = new cellArithmetic_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inCellType,
-        inJ["parameters"]["A_SIGNED"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["B_SIGNED"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["A_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["B_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["Y_WIDTH"].get<json::number_unsigned_t>());
+    json description;
+    description["parameters"]["WIDTH"] = this->width;
+    description["parameters"]["CLK_POLARITY"] = this->clkPolarity;
+    fillPortIntoJson(description["ports"]["CLK"], this->clk);
+    fillPortsIntoJson(description["ports"]["D"], this->d);
+    fillPortsIntoJson(description["ports"]["Q"], this->q);
 
-    for (int i = 0; i < (*outCell)->aWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "A", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->a.push_back(*newPort);
-        }
-    }
-
-    for (int i = 0; i < (*outCell)->bWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "B", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->b.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->yWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionOutput, "Y", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->y.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const string inCellName, module_t *inModule, cellDFlipFlop_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellDFlipFlopEnable_t::storeAdditionalInJson(){
 
-    port_t *clkPort = createPort(inJ, DirectionInput, "CLK", inModule);
+    json description;
+    description = ((cellDFlipFlop_t*)this)->storeAdditionalInJson();
+    description["parameters"]["EN_POLARITY"] = this->enPolarity;
+    fillPortIntoJson(description["ports"]["EN"], this->en);
 
-    *outCell = new cellDFlipFlop_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CLK_POLARITY"].get<json::number_unsigned_t>(),
-        TypeDff,
-        *clkPort);
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "D", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->d.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionOutput, "Q", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->q.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const string inCellName, module_t *inModule, cellDFlipFlopEnable_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellDFlipFlopSetReset_t::storeAdditionalInJson(){
 
-    port_t *clkPort = createPort(inJ, DirectionInput, "CLK", inModule);
-    port_t *enPort = createPort(inJ, DirectionInput, "EN", inModule);
+    json description;
+    description = ((cellDFlipFlop_t*)this)->storeAdditionalInJson();
+    description["parameters"]["SET_POLARITY"] = this->setPolarity;
+    description["parameters"]["CLR_POLARITY"] = this->clrPolarity;
+    fillPortsIntoJson(description["ports"]["SET"], this->set);
+    fillPortsIntoJson(description["ports"]["CLR"], this->clr);
 
-    *outCell = new cellDFlipFlopEnable_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CLK_POLARITY"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["EN_POLARITY"].get<json::number_unsigned_t>(),
-        TypeDffe,
-        *clkPort,
-        *enPort);
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "D", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->d.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "Q", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->q.push_back(*newPort);
-        }
-    }
+    return description;   
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellDFlipFlopSetReset_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellAdff_t::storeAdditionalInJson(){
+    json description;
+    description = ((cellDFlipFlop_t*)this)->storeAdditionalInJson();
+    description["parameters"]["ARST_POLARITY"] = this->arstPolarity;
+    description["parameters"]["ARST_VALUE"] = this->arstValue;
+    fillPortIntoJson(description["ports"]["CLR"], this->arst);
 
-    port_t *clkPort = createPort(inJ, DirectionInput, "CLK", inModule);
-
-    *outCell = new cellDFlipFlopSetReset_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CLK_POLARITY"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["SET_POLARITY"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CLR_POLARITY"].get<json::number_unsigned_t>(),
-        TypeDffsr,
-        *clkPort);
-
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "D", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->d.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionOutput, "Q", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->q.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "SET", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->set.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "CLR", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->clr.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellFlipFlop_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellFlipFlop_t::storeAdditionalInJson(){
+    
+    json description;
+    description["parameters"]["WIDTH"] = this->width;
+    fillPortsIntoJson(description["ports"]["D"], this->d);
+    fillPortsIntoJson(description["ports"]["Q"], this->q);
 
-    *outCell = new cellFlipFlop_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>());
-
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "D", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->d.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionOutput, "Q", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->q.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellDLatch_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellDLatch_t::storeAdditionalInJson(){
 
-    port_t *enPort = createPort(inJ, DirectionInput, "EN", inModule);
+    json description;
+    description["parameters"]["WIDTH"] = this->width;
+    description["parameters"]["EN_POLARITY"] = this->enPolarity;
+    fillPortIntoJson(description["ports"]["EN"], this->en);
+    fillPortsIntoJson(description["ports"]["D"], this->d);
+    fillPortsIntoJson(description["ports"]["Q"], this->q);
 
-    *outCell = new cellDLatch_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        TypeDLatch,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["EN_POLARITY"].get<json::number_unsigned_t>(),
-        *enPort);
-
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "D", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->d.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionOutput, "Q", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->q.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellDLatchSR_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellDLatchSR_t::storeAdditionalInJson(){
+    
+    json description;
+    description["parameters"]["WIDTH"] = this->width;
+    description["parameters"]["EN_POLARITY"] = this->enPolarity;
+    description["parameters"]["SET_POLARITY"] = this->setPolarity;
+    description["parameters"]["CLR_POLARITY"] = this->clrPolarity;
+    fillPortIntoJson(description["ports"]["EN"], this->en);
+    fillPortsIntoJson(description["ports"]["D"], this->d);
+    fillPortsIntoJson(description["ports"]["Q"], this->q);
+    fillPortsIntoJson(description["ports"]["SET"], this->set);
+    fillPortsIntoJson(description["ports"]["CLR"], this->clr);
 
-    port_t *enPort = createPort(inJ, DirectionInput, "EN", inModule);
-
-    *outCell = new cellDLatchSR_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        TypeDLatchSR,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["EN_POLARITY"].get<json::number_unsigned_t>(),
-        *enPort,
-        inJ["parameters"]["SET_POLARITY"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CLR_POLARITY"].get<json::number_unsigned_t>());
-
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "D", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->d.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "SET", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->set.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "CLR", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->clr.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionOutput, "Q", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->q.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellAdff_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellConstAssign_t::storeAdditionalInJson(){
+    
+    json description;
+    description["parameters"]["WIDTH"] = this->width;
+    fillPortsIntoJson(description["ports"]["Y"], this->y);
 
-    port_t *clkPort = createPort(inJ, DirectionInput, "CLK", inModule);
-    port_t *arstPort = createPort(inJ, DirectionInput, "ARST", inModule);
-
-    *outCell = new cellAdff_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CLK_POLARITY"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["ARST_POLARITY"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["ARST_VALUE"].get<json::number_unsigned_t>(),
-        *clkPort,
-        *arstPort);
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "D", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->d.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionOutput, "Q", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->q.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, const cellType_t inCellType, module_t *inModule, cellConstAssign_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellAlu_t::storeAdditionalInJson(){
+    
+    json description;
+    description["parameters"]["A_SIGNED"] = this->aSigned == true ? 1 : 0;
+    description["parameters"]["B_SIGNED"] = this->aSigned == true ? 1 : 0;
+    description["parameters"]["A_WIDTH"] = this->aWidth;
+    description["parameters"]["B_WIDTH"] = this->bWidth;
+    description["parameters"]["Y_WIDTH"] = this->yWidth;
+    fillPortIntoJson(description["ports"]["CI"], this->ci);
+    fillPortIntoJson(description["ports"]["BI"], this->bi);
+    fillPortsIntoJson(description["ports"]["A"], this->a);
+    fillPortsIntoJson(description["ports"]["B"], this->b);
+    fillPortsIntoJson(description["ports"]["Y"], this->y);
+    fillPortsIntoJson(description["ports"]["X"], this->x);
+    fillPortsIntoJson(description["ports"]["CO"], this->co);
 
-    *outCell = new cellConstAssign_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inCellType,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>());
-
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionOutput, "Y", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->y.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellAlu_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellAEn_t::storeAdditionalInJson(){
 
-    port_t *ciPort = createPort(inJ, DirectionInput, "CI", inModule);
-    port_t *biPort = createPort(inJ, DirectionInput, "BI", inModule);
+    json description;
+    fillPortIntoJson(description["ports"]["A"], this->a);
+    fillPortIntoJson(description["ports"]["EN"], this->en);
 
-    *outCell = new cellAlu_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["A_SIGNED"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["B_SIGNED"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["A_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["B_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["Y_WIDTH"].get<json::number_unsigned_t>(),
-        *ciPort,
-        *biPort);
-    for (int i = 0; i < (*outCell)->aWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "A", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->a.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->bWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "B", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->b.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->yWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionOutput, "Y", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->y.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionOutput, "X", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->x.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionOutput, "CO", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->co.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, const cellType_t inCellType, module_t *inModule, cellAEn_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellConcat_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["A_WIDTH"] = this->aWidth;
+    description["parameters"]["B_WIDTH"] = this->bWidth;
+    fillPortsIntoJson(description["ports"]["A"], this->a);
+    fillPortsIntoJson(description["ports"]["B"], this->b);
+    fillPortsIntoJson(description["ports"]["Y"], this->y);
 
-    port_t *aPort = createPort(inJ, DirectionInput, "A", inModule);
-    port_t *enPort = createPort(inJ, DirectionInput, "EN", inModule);
-    *outCell = new cellAEn_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inCellType,
-        *aPort,
-        *enPort);
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellConcat_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellEquiv_t::storeAdditionalInJson(){
+    json description;
+    fillPortIntoJson(description["ports"]["A"], this->a);
+    fillPortIntoJson(description["ports"]["B"], this->b);
+    fillPortIntoJson(description["ports"]["Y"], this->y);
 
-    *outCell = new cellConcat_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["A_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["B_WIDTH"].get<json::number_unsigned_t>());
-
-    for (int i = 0; i < (*outCell)->aWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "A", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->a.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->bWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "B", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->b.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->aWidth + (*outCell)->bWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionOutput, "Y", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->y.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellEquiv_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellFa_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["WIDTH"] = this->width;
+    fillPortsIntoJson(description["ports"]["A"], this->a);
+    fillPortsIntoJson(description["ports"]["B"], this->b);
+    fillPortsIntoJson(description["ports"]["C"], this->c);
+    fillPortsIntoJson(description["ports"]["X"], this->x);
+    fillPortsIntoJson(description["ports"]["Y"], this->y);
 
-    port_t *aPort = createPort(inJ, DirectionInput, "A", inModule);
-    port_t *bPort = createPort(inJ, DirectionInput, "B", inModule);
-    port_t *yPort = createPort(inJ, DirectionInput, "Y", inModule);
-
-    *outCell = new cellEquiv_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        *aPort,
-        *bPort,
-        *yPort);
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellFa_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellFsm_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["CLK_POLARITY"] = this->clkPolarity;
+    description["parameters"]["ARST_POLARITY"] = this->arstPolarity;
+    description["parameters"]["CTRL_IN_WIDTH"] = this->ctrlInWidth;
+    description["parameters"]["CTRL_OUT_WIDTH"] = this->ctrlOutWidth;
+    description["parameters"]["STATE_BITS"] = this->stateBits;
+    description["parameters"]["STATE_NUM"] = this->stateNum;
+    description["parameters"]["STATE_NUM_LOG_2"] = this->stateNumLog2;
+    description["parameters"]["STATE_RST"] = this->stateRst;
+    description["parameters"]["STATE_TABLE"] = this->stateTable;
+    description["parameters"]["TRANS_NUM"] = this->transNum;
+    description["parameters"]["TRANS_TABLE"] = this->transTable;
+    fillPortIntoJson(description["ports"]["CLK"], this->clk);
+    fillPortIntoJson(description["ports"]["ARST"], this->arst);
+    fillPortsIntoJson(description["ports"]["CTRL_IN"], this->ctrlIn);
+    fillPortsIntoJson(description["ports"]["CTRL_OUT"], this->ctrlOut);
 
-    *outCell = new cellFa_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>());
-
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "A", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->a.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "B", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->b.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "C", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->c.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionOutput, "X", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->x.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionOutput, "Y", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->y.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellFsm_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellInitState_t::storeAdditionalInJson(){
+    
+    json description;
+    fillPortIntoJson(description["ports"]["Y"], this->y);
 
-    port_t *clkPort = createPort(inJ, DirectionInput, "CLK", inModule);
-    port_t *arstPort = createPort(inJ, DirectionInput, "ARST", inModule);
-
-    *outCell = new cellFsm_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["CLK_POLARITY"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["ARST_POLARITY"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CTRL_IN_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CTRL_OUT_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["STATE_BITS"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["STATE_NUM"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["STATE_NUM_LOG2"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["STATE_RST"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["STATE_TABLE"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["TRANS_NUM"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["TRANS_TABLE"].get<json::number_unsigned_t>(),
-        *clkPort,
-        *arstPort);
-
-    for (int i = 0; i < (*outCell)->ctrlInWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "CTRL_IN", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->ctrlIn.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->ctrlOutWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionOutput, "CTRL_OUT", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->ctrlOut.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellInitState_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellLcu_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["WIDTH"] = this->width;
+    fillPortIntoJson(description["ports"]["CI"], this->ci);
+    fillPortsIntoJson(description["ports"]["P"], this->p);
+    fillPortsIntoJson(description["ports"]["G"], this->g);
+    fillPortsIntoJson(description["ports"]["CO"], this->co);
 
-    port_t *yPort = createPort(inJ, DirectionInput, "Y", inModule);
-    *outCell = new cellInitState_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        *yPort);
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellLcu_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellAY_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["A_SIGNED"] = this->aSigned;
+    description["parameters"]["A_WIDTH"] = this->aWidth;
+    description["parameters"]["Y_WIDTH"] = this->yWidth;
+    fillPortsIntoJson(description["ports"]["A"], this->a);
+    fillPortsIntoJson(description["ports"]["Y"], this->y);
 
-    port_t *ciPort = createPort(inJ, DirectionInput, "CI", inModule);
-
-    *outCell = new cellLcu_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        *ciPort);
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "P", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->p.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "G", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->g.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "CO", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->co.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, const cellType_t inCellType, module_t *inModule, cellAY_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellLut_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["WIDTH"] = this->width;
+    description["parameters"]["LUT"] = this->lut;
+    fillPortIntoJson(description["ports"]["Y"], this->y);
+    fillPortsIntoJson(description["ports"]["A"], this->a);
 
-    *outCell = new cellAY_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inCellType,
-        inJ["parameters"]["A_SIGNED"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["A_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["Y_WIDTH"].get<json::number_unsigned_t>());
-
-    for (int i = 0; i < (*outCell)->aWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "A", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->a.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->yWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionOutput, "Y", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->y.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellLut_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellMacc_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["A_WIDTH"] = this->aWidth;
+    description["parameters"]["B_WIDTH"] = this->bWidth;
+    description["parameters"]["Y_WIDTH"] = this->yWidth;
+    description["parameters"]["CONFIG"] = this->config;
+    description["parameters"]["CONFIG_WIDTH"] = this->configWidth;
+    fillPortsIntoJson(description["ports"]["A"], this->a);
+    fillPortsIntoJson(description["ports"]["B"], this->b);
+    fillPortsIntoJson(description["ports"]["Y"], this->y);
 
-    port_t *yPort = createPort(inJ, DirectionInput, "Y", inModule);
-
-    *outCell = new cellLut_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["LUT"].get<json::number_unsigned_t>(),
-        *yPort);
-
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "A", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->a.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellMacc_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
-
-    *outCell = new cellMacc_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["A_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["B_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["Y_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CONFIG"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CONFIG_WIDTH"].get<json::number_unsigned_t>());
-
-    for (int i = 0; i < (*outCell)->aWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "A", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->a.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->bWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "B", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->b.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->yWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionOutput, "Y", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->y.push_back(*newPort);
-        }
-    }
+json cellMem_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["MEM_ID"] = this->memId;
+    description["parameters"]["SIZE"] = this->size;
+    description["parameters"]["OFFSET"] = this->offset;
+    description["parameters"]["A_BITS"] = this->aBits;
+    description["parameters"]["WIDTH"] = this->width;
+    description["parameters"]["INIT"] = this->init;
+    description["parameters"]["RD_PORTS"] = this->rdPorts;
+    description["parameters"]["RD_CLK_ENABLE"] = this->rdClkEnable;
+    description["parameters"]["RD_CLK_POLARITY"] = this->rdClkPolarity;
+    description["parameters"]["RD_TRANSPARENT"] = this->rdTransparent;
+    description["parameters"]["WR_PORTS"] = this->wrPorts;
+    description["parameters"]["WR_CLK_ENABLE"] = this->wrClkEnable;
+    description["parameters"]["WR_CLK_POLARITY"] = this->wrClkPolarity;
+    fillPortsIntoJson(description["ports"]["RD_CLK"], this->rdClk);
+    fillPortsIntoJson(description["ports"]["RD_EN"], this->rdEn);
+    fillPortsIntoJson(description["ports"]["RD_ADDR"], this->rdAddr);
+    fillPortsIntoJson(description["ports"]["RD_DATA"], this->rdData);
+    fillPortsIntoJson(description["ports"]["WR_CLK"], this->wrClk);
+    fillPortsIntoJson(description["ports"]["WR_EN"], this->wrEn);
+    fillPortsIntoJson(description["ports"]["WR_ADDR"], this->wrAddr);
+    fillPortsIntoJson(description["ports"]["WR_DATA"], this->wrData);
+    
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellMem_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellMemInit_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["MEM_ID"] = this->memId;
+    description["parameters"]["A_BITS"] = this->aBits;
+    description["parameters"]["WIDTH"] = this->width;
+    description["parameters"]["WORDS"] = this->words;
+    description["parameters"]["PRIORITY"] = this->priority;
+    fillPortsIntoJson(description["ports"]["ADDR"], this->addr);
+    fillPortsIntoJson(description["ports"]["DATA"], this->data);
 
-    *outCell = new cellMem_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["MEMID"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["SIZE"].get<json::number_integer_t>(),
-        inJ["parameters"]["OFFSET"].get<json::number_integer_t>(),
-        inJ["parameters"]["ABITS"].get<json::number_integer_t>(),
-        inJ["parameters"]["WIDTH"].get<json::number_integer_t>(),
-        inJ["parameters"]["INIT"].get<json::number_integer_t>(),
-        inJ["parameters"]["RD_PORTS"].get<json::number_integer_t>(),
-        inJ["parameters"]["RD_CLK_ENABLE"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["RD_CLK_POLARITY"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["RD_TRANSPARENT"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["WR_PORTS"].get<json::number_integer_t>(),
-        inJ["parameters"]["WR_CLK_ENABLE"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["WR_CLK_POLARITY"].get<json::number_unsigned_t>());
-
-    for (int i = 0; i < (*outCell)->rdPorts; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "RD_CLK", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->rdClk.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "RD_EN", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->rdEn.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->rdPorts * (*outCell)->aBits; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "RD_ADDR", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->rdAddr.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->rdPorts * (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionOutput, "RD_DATA", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->rdData.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->wrPorts; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "WR_CLK", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->wrClk.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->wrPorts * (*outCell)->aBits; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "WR_ADDR", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->wrAddr.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->rdPorts * (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "WR_DATA", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->wrData.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "WR_EN", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->wrEn.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellMemInit_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellMemRd_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["MEM_ID"] = this->memId;
+    description["parameters"]["A_BITS"] = this->aBits;
+    description["parameters"]["WIDTH"] = this->width;
+    description["parameters"]["CLK_ENABLE"] = this->clkEnable;
+    description["parameters"]["CLK_POLARITY"] = this->clkPolarity;
+    description["parameters"]["TRANSPERENT"] = this->transparent;
+    fillPortIntoJson(description["ports"]["CLK"], this->clk);
+    fillPortIntoJson(description["ports"]["EN"], this->en);
+    fillPortsIntoJson(description["ports"]["ADDR"], this->addr);
+    fillPortsIntoJson(description["ports"]["DATA"], this->data);
 
-    *outCell = new cellMemInit_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["MEMID"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["ABITS"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["WORDS"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["PRIORITY"].get<json::number_unsigned_t>());
-
-    for (int i = 0; i < (*outCell)->aBits; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "ADDR", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->addr.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->words * (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "DATA", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->data.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellMemRd_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellMemWr_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["MEM_ID"] = this->memId;
+    description["parameters"]["A_BITS"] = this->aBits;
+    description["parameters"]["WIDTH"] = this->width;
+    description["parameters"]["CLK_ENABLE"] = this->clkEnable;
+    description["parameters"]["CLK_POLARITY"] = this->clkPolarity;
+    description["parameters"]["TRANSPERENT"] = this->transparent;
+    fillPortIntoJson(description["ports"]["CLK"], this->clk);
+    fillPortsIntoJson(description["ports"]["EN"], this->en);
+    fillPortsIntoJson(description["ports"]["ADDR"], this->addr);
+    fillPortsIntoJson(description["ports"]["DATA"], this->data);
 
-    port_t *clkPort = createPort(inJ, DirectionInput, "CLK", inModule);
-    port_t *enPort = createPort(inJ, DirectionInput, "EN", inModule);
-
-    *outCell = new cellMemRd_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["MEMID"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["ABITS"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CLK_ENABLE"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CLK_POLARITY"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["TRANSPARENT"].get<json::number_unsigned_t>(),
-        *clkPort,
-        *enPort);
-
-    for (int i = 0; i < (*outCell)->aBits; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "ADDR", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->addr.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionOutput, "DATA", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->data.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellMemWr_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellMux_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["WIDTH"] = this->width;
+    fillPortIntoJson(description["ports"]["S"], this->s);
+    fillPortsIntoJson(description["ports"]["A"], this->a);
+    fillPortsIntoJson(description["ports"]["B"], this->b);
+    fillPortsIntoJson(description["ports"]["Y"], this->y);
 
-    port_t *clkPort = createPort(inJ, DirectionInput, "CLK", inModule);
-
-    *outCell = new cellMemWr_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["MEMID"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["ABITS"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CLK_ENABLE"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CLK_POLARITY"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["TRANSPARENT"].get<json::number_unsigned_t>(),
-        *clkPort);
-
-    for (int i = 0; i < (*outCell)->aBits; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "ADDR", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->addr.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "DATA", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->data.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "EN", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->en.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellMux_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellPMux_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["WIDTH"] = this->width;
+    description["parameters"]["S_WIDTH"] = this->sWidth;
+    fillPortsIntoJson(description["ports"]["S"], this->s);
+    fillPortsIntoJson(description["ports"]["A"], this->a);
+    fillPortsIntoJson(description["ports"]["B"], this->b);
+    fillPortsIntoJson(description["ports"]["Y"], this->y);
 
-    port_t *sPort = createPort(inJ, DirectionInput, "S", inModule);
-
-    *outCell = new cellMux_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        *sPort);
-
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "A", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->a.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "B", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->b.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionOutput, "Y", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->y.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellPMux_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellSlice_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["OFFSET"] = this->offset;
+    description["parameters"]["A_WIDTH"] = this->aWidth;
+    description["parameters"]["Y_WIDTH"] = this->yWidth;
+    fillPortsIntoJson(description["ports"]["A"], this->a);
+    fillPortsIntoJson(description["ports"]["Y"], this->y);
 
-    *outCell = new cellPMux_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["S_WIDTH"].get<json::number_unsigned_t>());
-
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "A", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->a.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionOutput, "Y", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->y.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->sWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "S", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->s.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->sWidth * (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "B", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->b.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellSlice_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
-
-    *outCell = new cellSlice_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["OFFSET"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["A_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["Y_WIDTH"].get<json::number_unsigned_t>());
-
-    for (int i = 0; i < (*outCell)->aWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "A", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->a.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->yWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionOutput, "Y", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->y.push_back(*newPort);
-        }
-    }
-}
-
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellSop_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
-
-    port_t *yPort = createPort(inJ, DirectionInput, "Y", inModule);
-
-    *outCell = new cellSop_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["DEPTH"].get<json::number_unsigned_t>(),
-        *yPort);
-
-    int tableSize = (*outCell)->width * (*outCell)->depth;
-    (*outCell)->table = new unsigned int[tableSize];
-
+json cellSop_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["WIDTH"] = this->width;
+    description["parameters"]["DEPTH"] = this->depth;
+    
+    int tableSize = (this->width) * (this->depth);
     for (int i = 0; i < tableSize; i++)
     {
-        (*outCell)->table[i] = inJ["parameters"]["TABLE"].at(i);
+        description["parameters"]["TABLE"].at(i) = this->table[i];
     }
+    fillPortIntoJson(description["ports"]["Y"], this->y);
+    fillPortsIntoJson(description["ports"]["A"], this->a);
+    
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellSpecify2_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellSpecify2_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["FULL"] = this->full;
+    description["parameters"]["SRC_WIDTH"] = this->srcWidth;
+    description["parameters"]["DST_WIDTH"] = this->dstWidth;
+    description["parameters"]["SRC_DST_PEN"] = this->srcDstPen;
+    description["parameters"]["SRC_DST_POL"] = this->srcDstPol;
+    description["parameters"]["T_RISE_MIN"] = this->tRiseMin;
+    description["parameters"]["T_RISE_TYP"] = this->tRiseTyp;
+    description["parameters"]["T_RISE_MAX"] = this->tRiseMax;
+    description["parameters"]["T_FALL_MIN"] = this->tFallMin;
+    description["parameters"]["T_FALL_TYP"] = this->tFallTyp;
+    description["parameters"]["T_FALL_MAX"] = this->tFallMax;
+    fillPortIntoJson(description["ports"]["EN"], this->en);
+    fillPortsIntoJson(description["ports"]["SRC"], this->src);
+    fillPortsIntoJson(description["ports"]["DST"], this->dst);
 
-    port_t *enPort = createPort(inJ, DirectionInput, "EN", inModule);
-
-    *outCell = new cellSpecify2_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        TypeSpecify2,
-        inJ["parameters"]["FULL"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["SRC_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["DST_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["SRC_DST_PEN"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["SRC_DST_POL"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["T_RISE_MIN"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["T_RISE_TYP"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["T_RISE_MAX"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["T_FALL_MIN"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["T_FALL_TYP"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["T_FALL_MAX"].get<json::number_unsigned_t>(),
-        *enPort);
-
-    for (int i = 0; i < (*outCell)->srcWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "SRC", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->src.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->dstWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "DST", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->dst.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellSpecify3_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellSpecify3_t::storeAdditionalInJson(){
+    json description;
+    description = ((cellSpecify2_t*)this)->storeAdditionalInJson();
+    description["parameters"]["EDGE_EN"] = this->edgeEn;
+    description["parameters"]["EDGE_POL"] = this->edgePol;
+    description["parameters"]["DAT_DST_PEN"] = this->datDstPen;
+    description["parameters"]["DAT_DST_POL"] = this->datDstPen;
+    fillPortsIntoJson(description["ports"]["DAT"], this->dat);
 
-    port_t *enPort = createPort(inJ, DirectionInput, "EN", inModule);
-
-    *outCell = new cellSpecify3_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        TypeSpecify3,
-        inJ["parameters"]["FULL"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["SRC_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["DST_WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["SRC_DST_PEN"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["SRC_DST_POL"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["T_RISE_MIN"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["T_RISE_TYP"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["T_RISE_MAX"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["T_FALL_MIN"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["T_FALL_TYP"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["T_FALL_MAX"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["EDGE_EN"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["EDGE_POL"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["DAT_DST_PEN"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["DAT_DST_POL"].get<json::number_unsigned_t>(),
-        *enPort);
-
-    for (int i = 0; i < (*outCell)->srcWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "SRC", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->src.push_back(*newPort);
-        }
-    }
-    for (int i = 0; i < (*outCell)->dstWidth; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "DST", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->dst.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "DAT", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->dat.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellTriBuf_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellTriBuf_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["WIDTH"] = this->width;
+    fillPortIntoJson(description["ports"]["DAT"], this->en);
+    fillPortsIntoJson(description["ports"]["A"], this->a);
+    fillPortsIntoJson(description["ports"]["Y"], this->y);
 
-    port_t *enPort = createPort(inJ, DirectionInput, "EN", inModule);
-
-    *outCell = new cellTriBuf_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        *enPort);
-
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "A", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->a.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionOutput, "Y", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->y.push_back(*newPort);
-        }
-    }
+    return description;
 }
 
-void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModule, cellSr_t **outCell)
-{
-    assert(inModule != NULL);
-    assert(outCell != NULL);
-    assert(*outCell == NULL);
+json cellSr_t::storeAdditionalInJson(){
+    json description;
+    description["parameters"]["WIDTH"] = this->width;
+    description["parameters"]["SET_POLARITY"] = this->setPolarity;
+    description["parameters"]["CLR_POLARITY"] = this->clrPolarity;
+    fillPortsIntoJson(description["ports"]["SET"], this->set);
+    fillPortsIntoJson(description["ports"]["CLR"], this->clr);
+    fillPortsIntoJson(description["ports"]["Q"], this->q);
 
-    *outCell = new cellSr_t(
-        inCellName,
-        inJ["hide_name"].get<json::number_unsigned_t>() == 1 ? true : false,
-        inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["SET_POLARITY"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CLR_POLARITY"].get<json::number_unsigned_t>());
-    for (int i = 0; i < (*outCell)->width; i++)
-    {
-        port_t *newPort = createPort(inJ, DirectionInput, "SET", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->set.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionInput, "CLR", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->clr.push_back(*newPort);
-        }
-        newPort = createPort(inJ, DirectionOutput, "Q", inModule, i);
-        if (newPort != NULL)
-        {
-            (*outCell)->q.push_back(*newPort);
-        }
-    }
+    return description;
 }

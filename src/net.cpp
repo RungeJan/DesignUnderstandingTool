@@ -1,17 +1,20 @@
 #include "net.h"
 
+#include <string>
 
-net_t zeroNet("Logical_0", 0, false);
+using namespace std;
 
-net_t oneNet("Logical_1", 1, false);
+net_t zeroNet("Logical_0", 0, 0, false);
 
-port_t zeroPort(DirectionInput, zeroNet);
+net_t oneNet("Logical_1", 1, 1, false);
 
-port_t onePort(DirectionInput, oneNet);
+port_t zeroPort(DirectionInput,0, zeroNet);
 
-net_t dontCareNet("x", -1, false);
+port_t onePort(DirectionInput,1, oneNet);
 
-port_t dontCarePort(DirectionInOut, dontCareNet);
+net_t dontCareNet("x", -1, -1, false);
+
+port_t dontCarePort(DirectionInOut,-1, dontCareNet);
 
 json net_t::storeInJson(){
     json description;
@@ -25,8 +28,9 @@ json net_t::storeInJson(){
 
 json port_t::storeInJson(){
     json description;
+    string tempId = this->net.netRefId < 10 ? "00" + to_string(this->net.netRefId) : this->net.netRefId < 100 ? "0" + to_string(this->net.netRefId) : to_string(this->net.netRefId);
     description["direction"] = this->direction == DirectionInput ? "Input" : (this->direction == DirectionOutput ? "Output" : "InOut");
-    description["net"] = this->net.storeInJson();
+    description["net"] = "net_" + tempId;
 
     return description;
 }
