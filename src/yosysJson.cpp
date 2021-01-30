@@ -494,9 +494,9 @@ void cellFromYosysJson(json &inJ, const std::string inCellName, module_t *inModu
         TypeDLatchSR,
         inJ["parameters"]["WIDTH"].get<json::number_unsigned_t>(),
         inJ["parameters"]["EN_POLARITY"].get<json::number_unsigned_t>(),
-        *enPort,
         inJ["parameters"]["SET_POLARITY"].get<json::number_unsigned_t>(),
-        inJ["parameters"]["CLR_POLARITY"].get<json::number_unsigned_t>());
+        inJ["parameters"]["CLR_POLARITY"].get<json::number_unsigned_t>(),
+        *enPort);
 
     for (int i = 0; i < (*outCell)->width; i++)
     {

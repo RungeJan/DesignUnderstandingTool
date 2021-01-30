@@ -13,10 +13,13 @@
 #include "module.h"
 #include "net.h"
 #include "cell.h"
+#include "design.h"
 
 #include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
+
+void processYosysDescription(json &inDescription, design_t &inOutDesign);
 
 /**
  * @brief This function will find all the nets that are given in a Yosys intermediate representation

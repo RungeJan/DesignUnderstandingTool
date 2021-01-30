@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <iomanip>
+#include <stdlib.h>
 
 #include "design.h"
 #include "module.h"
@@ -15,65 +16,97 @@ using json = nlohmann::json;
 
 using namespace std;
 
+char *filename = NULL;
+bool isYosysFile = false;
+string designName = "Unknown";
+string outFileName = "./json/DUT_IR.json";
+void parseOptions(int argc, char *argv[])
+{
+    if (argc < 2)
+    {
+        cerr << "Too less arguments, type main.exe -help for more information" << endl;
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 1; i < argc; i++)
+    {
+        if (string(argv[i]) == "-help")
+        {
+            cout << "******************************************" << endl
+                 << "* Help for the Design Understanding Tool *" << endl
+                 << "******************************************" << endl
+                 << "The following has to be added to the" << endl
+                 << "function call:" << endl
+                 << "main.exe <file_name>  Where <file_name> is" << endl
+                 << "the name of the file holding the design " << endl
+                 << "description." << endl;
+        }
+        else if (string(argv[i]) == "-yosys")
+        {
+            isYosysFile = true;
+        }
+        else if ((string(argv[i])) == "-name")
+        {
+            designName = string(argv[i + 1]);
+            i++;
+        }
+        else if (((string(argv[i])) == "-outName") || ((string(argv[i])) == "-o"))
+        {
+            outFileName = "./json/" + string(argv[i + 1]);
+            i++;
+        }
+        else
+        {
+            filename = argv[i];
+        }
+    }
+}
 
 int main(int argc, char *argv[])
 {
+    parseOptions(argc, argv);
 
-    if (argc < 2)
-    {
-        cerr << "No file provided - Terminating" << endl;
-        return -1;
-    }
-
-    ifstream file(argv[1]);
+    ifstream file(filename);
     json description;
     json processed;
     file >> description;
 
     design_t newDesign;
 
-    string name(argv[1]);
-    newDesign.name = name.substr(0,name.find(".json"));
-
     //cout << description["modules"].dump(1) << endl;
-
-    // Go through all the modules individually
-    for (int i = 0; i < description["modules"].size(); i++)
+    if (isYosysFile)
     {
-        module_t *newModule = new module_t(); //Create a new module
-        string moduleDescription = description["modules"].dump();
-        newModule->name = moduleDescription.substr(2, moduleDescription.find("\":") - 2);
-        cout << newModule->name << endl;
-        json &passToFunc = description["modules"][newModule->name];
-        // Get the attributes of the module
-        if(passToFunc.contains<string>("netnames")){
-            processYosysNetsIntoVector(passToFunc["netnames"], newModule);
-            passToFunc.erase("netnames");
-        }
-        if (passToFunc.contains<string>("attributes"))
+        if (designName == "Unknown")
         {
-            processYosysAttributesIntoVector(passToFunc["attributes"], newModule->attributes);
-            passToFunc.erase("attributes");
+            designName = string(filename);
+            designName = designName.substr(0, designName.find(".json"));
         }
-        if (passToFunc.contains<string>("ports"))
-        {
-            // Add all the ports to the design. They will also be added as nets.
-            processYosysPortsIntoVector(passToFunc["ports"], newModule);
-            passToFunc.erase("ports");
-        }
-        if(passToFunc.contains<string>("cells")){
-            processYosysCellsIntoVector(passToFunc["cells"], newModule);
-            passToFunc.erase("cells");
-        }
-        description["modules"].erase(newModule->name);
-        newDesign.modules.push_back(*newModule);
+        newDesign.name = designName;
+        processYosysDescription(description, newDesign);
     }
-    
+    else
+    {
+        if (designName == "Unknown")
+        {
+            designName = description["name"];
+        }
+        newDesign.name = designName;
+        if (description.contains("modules"))
+        {
+            json::iterator it = description["modules"].begin();
+            while (it != description["modules"].end())
+            {
+                module_t *newModule = module_t::createFromJson(*it);
+                newDesign.modules.push_back(*newModule);
+                it++;
+            }
+        }
+    }
+
     ofstream checkFile("leftDescription.json");
     checkFile << description.dump(4);
 
     json myIR = newDesign.storeInJson();
-    ofstream newIr("DUT_IR.json");
+    ofstream newIr(outFileName);
     newIr << myIR.dump(4);
 
     return 0;

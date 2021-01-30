@@ -19,7 +19,7 @@ using json = nlohmann::json;
 
 struct module_t
 {
-    module_t() : numberOfNets(2), numberOfPorts(2), numberOfCells(0){};
+    module_t(std::string newName) : name(newName), numberOfNets(2), numberOfPorts(2), numberOfCells(0){};
 
     // External known information
     /**
@@ -48,7 +48,9 @@ struct module_t
     */
     json storeInJson();
 
-    std::string name;                                            //!< The name of the module
+    static module_t* createFromJson(json &inJ);
+
+    const std::string name;                                      //!< The name of the module
     std::vector<port_t> ports;                                   //!< The input and output ports to the module, ports are mapped to the internal nets
     std::vector<std::pair<std::string, std::string>> attributes; //!< All the attributes given to the module
     std::vector<cell_t *> cells;                                 //!< Pointers to all the cells that where introduced by Yosys (pointers since there are multiple cell types derived from cell_t)

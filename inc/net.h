@@ -29,7 +29,9 @@ struct net_t{
      * 
      * @return A json object holding the information about this instance
      */
-    json storeInJson();       
+    json storeInJson();
+
+    static net_t * createFromJson(json &inJ,const unsigned int inRefId);       
 
     std::string name;               //!< The name under which this net can be found in code
     const unsigned int bitId;       //!< A unique identifier for this net, given by Yosys, global
@@ -40,7 +42,7 @@ struct net_t{
 
 struct port_t{
 
-    port_t(direction_t newDirection, unsigned int newRefId, net_t & newNet) : direction(newDirection), net(newNet), portRefId(newRefId){};
+    port_t(direction_t newDirection, unsigned int newRefId, net_t &newNet) : direction(newDirection), net(newNet), portRefId(newRefId){};
 
     /**
      * @brief This function will parse the struct instance into a json object

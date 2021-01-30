@@ -6,6 +6,8 @@
  * 
  */
 
+#ifndef DESIGN_H_
+#define DESIGN_H_
 #include <vector>
 
 #include "module.h"
@@ -29,3 +31,5 @@ struct design_t{
     std::string name;                   //!< The name of this design
     std::vector<module_t> modules;      //!< all the modules that are within this file
 }; 
+
+#endif // DESIGN_H_

@@ -116,7 +116,7 @@ cellType_t getCellType(std::string inString);
  * 
  * @return The string beloning to the cellType_t
  */
-std::string getCellType(cellType_t inType);
+std::string getCellType(const cellType_t inType);
 
 /**
  * @brief This struct serves as a base struct for all further cell implementations
@@ -136,6 +136,17 @@ struct cell_t
      * @return A json representation of this cell with respect to its type
      */
     json storeInJson();
+
+    /**
+     * @brief This function will create an instance of this struct from a json description
+     * 
+     * @param inJ The json description of this cell
+     * @param inNets A json description of all the nets in the module
+     * @param inModule The module to which the cell should be added
+     * 
+     * @return A pointer to the created instance, casted to cell_t*
+     */
+    static cell_t* createFromJson(json &inJ, json &inNets, module_t &inModule);
     
     /**
      * @brief This Function will add all information of the struct that overrides this function to the json description
@@ -143,6 +154,7 @@ struct cell_t
      * @return A json object holding the details about a cell
      */
     virtual json storeAdditionalInJson() = 0;
+   // virtual cell_t * createAdditionalFromJson(json &inJ);
 };
 /**
  * @brief This struct servers as a representation for all cells of arithmetic type 
@@ -164,6 +176,17 @@ struct cellArithmetic_t : public cell_t{
      * @return A json representation if this cell
      */
     json storeAdditionalInJson();
+
+    /**
+     * @brief This function will create an instance of this struct from a json description
+     * 
+     * @param inJ The json description of this cell
+     * @param inNets A json description of all the nets in the module
+     * @param inModule The module to which the cell should be added
+     * 
+     * @return A pointer to the created instance, casted to cell_t*
+     */
+     static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule, const cellType_t type);
 
     const bool aSigned;         //!< true, if a is a signed value, false otherwise
     const bool bSigned;         //!< true, if b is a signed value, false otherwise
@@ -196,6 +219,17 @@ struct cellDFlipFlop_t : public cell_t{
      */
     virtual json storeAdditionalInJson();
 
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+     static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule, const cellType_t type);
+
     const unsigned int width;       //!< The width of D and Q
     const unsigned int clkPolarity; //!< The polarity of the CLK
     port_t clk;                     //!< The port working as the CLK
@@ -216,6 +250,19 @@ struct cellDFlipFlopEnable_t : public cellDFlipFlop_t{
      * @return A json representation if this cell
      */
     json storeAdditionalInJson();
+
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+    static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule, const cellType_t type);
+
+    
 
     const unsigned int enPolarity;  //!< The polarity of the enable pin
     port_t en;                      //!< The port working as the enable pin
@@ -238,6 +285,18 @@ struct cellDFlipFlopSetReset_t : cellDFlipFlop_t {
      * @return A json representation if this cell
      */
     json storeAdditionalInJson();
+
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+    static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule, const cellType_t type);
+
     
     const unsigned int setPolarity;     //!< The polarity of the set pin
     const unsigned int clrPolarity;     //!< The polarity of the clear pin
@@ -253,7 +312,7 @@ struct cellDFlipFlopSetReset_t : cellDFlipFlop_t {
 struct cellAdff_t : public cellDFlipFlop_t{
     cellAdff_t(std::string newName, bool hide, unsigned int newWidth, unsigned int newClkPolarity, unsigned int newArstPolarity, unsigned int newArstValue,
                port_t newClk, port_t newArst) : arstPolarity(newArstPolarity), arstValue(newArstValue), arst(newArst), 
-               cellDFlipFlop_t(newName, hide, newWidth, newClkPolarity,TypeAdff, newClk) {};
+               cellDFlipFlop_t(newName, hide, newWidth, newClkPolarity, TypeAdff, newClk) {};
 
     /**
      * @brief This function will add the specific elements of this cell type to a json representation
@@ -261,6 +320,17 @@ struct cellAdff_t : public cellDFlipFlop_t{
      * @return A json representation if this cell
      */
     json storeAdditionalInJson();
+
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+     static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule);
 
     const unsigned int arstPolarity;    //!< The polarity of the A-Reset signal
     const unsigned int arstValue;       //!< The value to which Q will be resetted
@@ -283,6 +353,17 @@ struct cellFlipFlop_t : public cell_t{ // TODO Add global clock ?
      */
     json storeAdditionalInJson();
 
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+     static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule);
+
     const unsigned int width;   //!< The width of D and Q
     std::vector<port_t> d;      //!< The input pins D
     std::vector<port_t> q;      //!< The output pins Q
@@ -304,6 +385,17 @@ struct cellDLatch_t : public cell_t{
      */
     virtual json storeAdditionalInJson();
 
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+     static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule, const cellType_t type);
+
     const unsigned int width;       //!< The width of D and Q
     const unsigned int enPolarity;  //!< The polarity of the enable pin
     port_t en;                      //!< The enabel pin
@@ -316,8 +408,8 @@ struct cellDLatch_t : public cell_t{
  */
 struct cellDLatchSR_t : public cellDLatch_t{
 
-    cellDLatchSR_t(std::string newName, bool hide, cellType_t newType, const unsigned int newWidth, const unsigned int newEnPolarity,  port_t newEn,
-                   unsigned int newSetPolarity, unsigned int newClrPolarity) : setPolarity(newSetPolarity), clrPolarity(newClrPolarity),
+    cellDLatchSR_t(std::string newName, bool hide, cellType_t newType, const unsigned int newWidth, const unsigned int newEnPolarity, 
+                   unsigned int newSetPolarity, unsigned int newClrPolarity, port_t newEn) : setPolarity(newSetPolarity), clrPolarity(newClrPolarity),
                    cellDLatch_t(newName, hide, newType, newWidth, newEnPolarity, newEn){};
 
     /**
@@ -326,6 +418,17 @@ struct cellDLatchSR_t : public cellDLatch_t{
      * @return A json representation if this cell
      */
     json storeAdditionalInJson();
+
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+     static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule, const cellType_t type);
 
     const unsigned int setPolarity;     //!< The polarity of the set pin
     const unsigned int clrPolarity;     //!< The polarity of the clear pin
@@ -346,6 +449,17 @@ struct cellConstAssign_t : public cell_t{
      * @return A json representation if this cell
      */
     json storeAdditionalInJson();
+
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+     static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule, const cellType_t type);
 
     unsigned int width;         //!< The width of the constant value
     std::vector<port_t> y;      //!< The output port holding the value
@@ -370,6 +484,17 @@ struct cellAlu_t : public cellArithmetic_t{
      */
     json storeAdditionalInJson();
 
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+     static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule);
+
     port_t ci;                  //!< The pin for the carry in signal
     port_t bi;
     std::vector<port_t> x;
@@ -392,6 +517,18 @@ struct cellAEn_t : public cell_t{
      */
     json storeAdditionalInJson();
 
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * @param type The cell type of the instance
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+     static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule, const cellType_t type);
+
     port_t a;       //!< The a port of this cell
     port_t en;      //!< The enable port of this cell
 };
@@ -409,6 +546,17 @@ struct cellConcat_t : public cell_t{
      * @return A json representation if this cell
      */
     json storeAdditionalInJson();
+
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+     static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule);
 
     const unsigned int aWidth;  //!< The width of the input a
     const unsigned int bWidth;  //!< the width of the input b
@@ -433,6 +581,17 @@ struct cellEquiv_t : public cell_t{
      */
     json storeAdditionalInJson();
 
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+     static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule);
+
     port_t a;   //!< The a input pin
     port_t b;   //!< The b input pin
     port_t y;   //!< The y output pin
@@ -448,6 +607,17 @@ struct cellFa_t : public cell_t{
      * @return A json representation if this cell
      */
     json storeAdditionalInJson();
+
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+     static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule);
 
     const unsigned int width;   //!< The width of all the ports
 
@@ -472,6 +642,17 @@ struct cellFsm_t : public cell_t{
      * @return A json representation if this cell
      */
     json storeAdditionalInJson();
+
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+    static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule);
     
     const unsigned int clkPolarity;
     const unsigned int arstPolarity;
@@ -503,6 +684,17 @@ struct cellInitState_t : public cell_t{
      */
     json storeAdditionalInJson();
 
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+    static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule);
+
     port_t y;  //!< The port acting as the y output
 };
 
@@ -515,6 +707,17 @@ struct cellLcu_t : public cell_t{
      * @return A json representation if this cell
      */
     json storeAdditionalInJson();
+
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+    static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule);
 
     const unsigned int width;   //!< The width of all the ports
 
@@ -536,6 +739,18 @@ struct cellAY_t : public cell_t{
      * @return A json representation if this cell
      */
     json storeAdditionalInJson();
+
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * @param type The cell type of the instance
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+     static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule, const cellType_t type);
     
     const bool aSigned;
     const unsigned int aWidth;  //!< The width of the a port
@@ -556,6 +771,17 @@ struct cellLut_t : public cell_t{
      * @return A json representation if this cell
      */
     json storeAdditionalInJson();
+
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+    static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule);
     
     const unsigned int width;   //!< The width of all the ports
     const unsigned int lut;
@@ -576,6 +802,17 @@ struct cellMacc_t : public cell_t{
      * @return A json representation if this cell
      */
     json storeAdditionalInJson();
+
+    /**
+    * @brief This function will create an instance of this struct from a json description
+    * 
+    * @param inJ The json description of this cell
+    * @param inNets A json description of all the nets in the module
+    * @param inModule The module to which the cell should be added
+    * 
+    * @return A pointer to the created instance, casted to cell_t*
+    */
+    static cell_t * createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule);
 
     const unsigned int aWidth;          //!< The width of the a port
     const unsigned int bWidth;          //!< The width of the b port

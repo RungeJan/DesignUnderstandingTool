@@ -24,7 +24,7 @@ port_t *createPort(json inJ, direction_t inDir, module_t *inModule, int inPos = 
             if (temp != "x")
             {
                 netId = stoi(temp);
-                outPort = new port_t(inDir, inModule->numberOfPorts, inModule->getNetWithId(netId));
+                outPort = new port_t(inDir, inModule->numberOfPorts++, inModule->getNetWithId(netId));
             }
             else
             {
@@ -34,7 +34,7 @@ port_t *createPort(json inJ, direction_t inDir, module_t *inModule, int inPos = 
         else
         {
             netId = inJ["bits"].at(inPos);
-            outPort = new port_t(inDir, inModule->numberOfPorts, inModule->getNetWithId(netId));
+            outPort = new port_t(inDir, inModule->numberOfPorts++, inModule->getNetWithId(netId));
         }
     }
     catch (const elementDoesNotExistException &e)
@@ -51,6 +51,43 @@ inline void removeSignInString(char inSign, string &inString)
     {
         inString.erase(pos, 1);
     };
+}
+
+void processYosysDescription(json &inDescription, design_t &inOutDesign){
+    // Go through all the modules individually
+    for (int i = 0; i < inDescription["modules"].size(); i++)
+    {
+        string moduleDescription = inDescription["modules"].dump();
+        moduleDescription =  moduleDescription.substr(2, moduleDescription.find("\":") - 2);
+        module_t *newModule = new module_t(moduleDescription); //Create a new module
+        
+        cout << newModule->name << endl;
+        json &passToFunc = inDescription["modules"][newModule->name];
+        // Get the attributes of the module
+        if (passToFunc.contains<string>("netnames"))
+        {
+            processYosysNetsIntoVector(passToFunc["netnames"], newModule);
+            passToFunc.erase("netnames");
+        }
+        if (passToFunc.contains<string>("attributes"))
+        {
+            processYosysAttributesIntoVector(passToFunc["attributes"], newModule->attributes);
+            passToFunc.erase("attributes");
+        }
+        if (passToFunc.contains<string>("ports"))
+        {
+            // Add all the ports to the design. They will also be added as nets.
+            processYosysPortsIntoVector(passToFunc["ports"], newModule);
+            passToFunc.erase("ports");
+        }
+        if (passToFunc.contains<string>("cells"))
+        {
+            processYosysCellsIntoVector(passToFunc["cells"], newModule);
+            passToFunc.erase("cells");
+        }
+        inDescription["modules"].erase(newModule->name);
+        inOutDesign.modules.push_back(*newModule);
+    }
 }
 
 void processYosysAttributesIntoVector(json &inJson, vector<pair<string, string>> &inOutAtts)
@@ -131,8 +168,6 @@ void processYosysPortsIntoVector(json &inJson, module_t *inModule)
     json::iterator it = inJson.begin();
     while (it != inJson.end())
     {
-        string portName = inJson.dump();
-        portName = portName.substr(2, portName.find("\":") - 2);
         int numberOfBits = (*it)["bits"].size();
 
         for (int j = 0; j < numberOfBits; j++)
@@ -140,7 +175,6 @@ void processYosysPortsIntoVector(json &inJson, module_t *inModule)
             newPort = createPort((*it), (*it)["direction"] == "output" ? DirectionOutput : DirectionInput, inModule, j);
             inModule->ports.push_back(*newPort);
         }
-        inJson.erase(it);
-        it = inJson.begin();
+        it++;
     }
 }

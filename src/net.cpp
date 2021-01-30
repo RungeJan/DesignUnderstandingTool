@@ -1,6 +1,7 @@
 #include "net.h"
 
 #include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -24,6 +25,16 @@ json net_t::storeInJson(){
     description["attributes"] = json(this->attributes);
 
     return description;
+}
+
+net_t * net_t::createFromJson(json &inJ, const unsigned int inRefId){
+    net_t *newNet = new net_t(inJ["name"], inJ["bitId"], inRefId, inJ["hide_name"]);
+    json::iterator it = inJ["attributes"].begin();
+    while(it != inJ["attributes"].end()){
+        newNet->attributes.push_back(make_pair(string(it->at(0)), string(it->at(1))));
+        it++;
+    }
+    return newNet;
 }
 
 json port_t::storeInJson(){
