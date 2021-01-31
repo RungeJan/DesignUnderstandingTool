@@ -1933,6 +1933,39 @@ json cellMem_t::storeAdditionalInJson()
     return description;
 }
 
+cell_t * cellMem_t::createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule){
+    
+    int numberOfPorts = 1;
+    cellMem_t *newCell = new cellMem_t(
+        inJ["name"],
+        inJ["hide_name"],
+        inJ["parameters"]["MEM_ID"],
+        inJ["parameters"]["SIZE"],
+        inJ["parameters"]["OFFSET"],
+        inJ["parameters"]["ABITS"],
+        inJ["parameters"]["WIDTH"],
+        inJ["parameters"]["INIT"],
+        inJ["parameters"]["RD_PORTS"],
+        inJ["parameters"]["RD_CLK_ENABLE"],
+        inJ["parameters"]["RD_CLK_POLARITY"],
+        inJ["parameters"]["RD_TRANSPARENT"],
+        inJ["parameters"]["WR_PORTS"],
+        inJ["parameters"]["WR_CLK_ENABLE"],
+        inJ["parameters"]["WR_CLK_POLARITY"]
+    );
+
+    createPortsFromJson(inJ["ports"]["RD_CLK"], inNets, inModule, numberOfPorts, newCell->rdClk);
+    createPortsFromJson(inJ["ports"]["RD_EN"], inNets, inModule, numberOfPorts, newCell->rdEn);
+    createPortsFromJson(inJ["ports"]["RD_ADDR"], inNets, inModule, numberOfPorts, newCell->rdAddr);
+    createPortsFromJson(inJ["ports"]["RD_DATA"], inNets, inModule, numberOfPorts, newCell->rdData);
+    createPortsFromJson(inJ["ports"]["WR_CLK"], inNets, inModule, numberOfPorts, newCell->wrClk);
+    createPortsFromJson(inJ["ports"]["WR_EN"], inNets, inModule, numberOfPorts, newCell->wrEn);
+    createPortsFromJson(inJ["ports"]["WR_ADDR"], inNets, inModule, numberOfPorts, newCell->wrAddr);
+    createPortsFromJson(inJ["ports"]["WR_DATA"], inNets, inModule, numberOfPorts, newCell->wrData);
+
+    return (cell_t*) newCell;
+}
+
 json cellMemInit_t::storeAdditionalInJson()
 {
     json description;
@@ -1947,6 +1980,26 @@ json cellMemInit_t::storeAdditionalInJson()
     return description;
 }
 
+cell_t* cellMemInit_t::createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule){
+
+    int numberOfPorts = 1;
+
+    cellMemInit_t *newCell = new cellMemInit_t(
+        inJ["name"],
+        inJ["hide_name"],
+        inJ["parameters"]["MEM_ID"],
+        inJ["parameters"]["A_BITS"],
+        inJ["parameters"]["WIDTH"],
+        inJ["parameters"]["WORDS"],
+        inJ["parameters"]["PRIORITY"]
+    );
+
+    createPortsFromJson(inJ["ports"]["ADDR"], inNets, inModule, numberOfPorts, newCell->addr);
+    createPortsFromJson(inJ["ports"]["DATA"], inNets, inModule, numberOfPorts, newCell->data);
+
+    return (cell_t*) newCell;
+}
+
 json cellMemRd_t::storeAdditionalInJson()
 {
     json description;
@@ -1955,13 +2008,40 @@ json cellMemRd_t::storeAdditionalInJson()
     description["parameters"]["WIDTH"] = this->width;
     description["parameters"]["CLK_ENABLE"] = this->clkEnable;
     description["parameters"]["CLK_POLARITY"] = this->clkPolarity;
-    description["parameters"]["TRANSPERENT"] = this->transparent;
+    description["parameters"]["TRANSPARENT"] = this->transparent;
     fillPortIntoJson(description["ports"]["CLK"], this->clk);
     fillPortIntoJson(description["ports"]["EN"], this->en);
     fillPortsIntoJson(description["ports"]["ADDR"], this->addr);
     fillPortsIntoJson(description["ports"]["DATA"], this->data);
 
     return description;
+}
+
+cell_t * cellMemRd_t::createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule){
+
+    int numberOfPorts = 1;
+    port_t *clkPort;
+    createPortFromJson(inJ["ports"]["CLK"], inNets, inModule, numberOfPorts, clkPort);
+    port_t *enPort;
+    createPortFromJson(inJ["ports"]["EN"], inNets, inModule, numberOfPorts, enPort);
+
+    cellMemRd_t *newCell = new cellMemRd_t(
+        inJ["name"],
+        inJ["hide_name"],
+        inJ["parameters"]["MEM_ID"],
+        inJ["parameters"]["A_BITS"],
+        inJ["parameters"]["WIDTH"],
+        inJ["parameters"]["CLK_ENABLE"],
+        inJ["parameters"]["CLK_POLARITY"],
+        inJ["parameters"]["TRANSPARENT"],
+        *clkPort,
+        *enPort
+    );
+
+    createPortsFromJson(inJ["ports"]["ADDR"], inNets, inModule, numberOfPorts, newCell->addr);
+    createPortsFromJson(inJ["ports"]["DATA"], inNets, inModule, numberOfPorts, newCell->data);
+
+    return (cell_t*) newCell;
 }
 
 json cellMemWr_t::storeAdditionalInJson()
@@ -1981,6 +2061,31 @@ json cellMemWr_t::storeAdditionalInJson()
     return description;
 }
 
+cell_t * cellMemWr_t::createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule){
+
+    int numberOfPorts = 1;
+    port_t *clkPort;
+    createPortFromJson(inJ["ports"]["CLK"], inNets, inModule, numberOfPorts, clkPort);
+
+    cellMemWr_t *newCell = new cellMemWr_t(
+        inJ["name"],
+        inJ["hide_name"],
+        inJ["parameters"]["MEM_ID"],
+        inJ["parameters"]["A_BITS"],
+        inJ["parameters"]["WIDTH"],
+        inJ["parameters"]["CLK_ENABLE"],
+        inJ["parameters"]["CLK_POLARITY"],
+        inJ["parameters"]["TRANSPARENT"],
+        *clkPort
+    );
+
+    createPortsFromJson(inJ["ports"]["ADDR"], inNets, inModule, numberOfPorts, newCell->addr);
+    createPortsFromJson(inJ["ports"]["DATA"], inNets, inModule, numberOfPorts, newCell->data);
+    createPortsFromJson(inJ["ports"]["EN"], inNets, inModule, numberOfPorts, newCell->en);
+
+    return (cell_t*) newCell;
+}
+
 json cellMux_t::storeAdditionalInJson()
 {
     json description;
@@ -1991,6 +2096,27 @@ json cellMux_t::storeAdditionalInJson()
     fillPortsIntoJson(description["ports"]["Y"], this->y);
 
     return description;
+}
+
+cell_t * cellMux_t::createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule){
+
+    int numberOfPorts = 1;
+    port_t *sPort;
+    createPortFromJson(inJ["ports"]["S"], inNets, inModule, numberOfPorts, sPort);
+
+    cellMux_t *newCell = new cellMux_t(
+        inJ["name"],
+        inJ["hide_name"],
+        inJ["parameters"]["WIDTH"],
+        *sPort
+    );
+
+    createPortsFromJson(inJ["ports"]["A"], inNets, inModule, numberOfPorts, newCell->a);
+    createPortsFromJson(inJ["ports"]["B"], inNets, inModule, numberOfPorts, newCell->b);
+    createPortsFromJson(inJ["ports"]["Y"], inNets, inModule, numberOfPorts, newCell->y);
+
+    return (cell_t*) newCell;
+
 }
 
 json cellPMux_t::storeAdditionalInJson()
@@ -2006,6 +2132,25 @@ json cellPMux_t::storeAdditionalInJson()
     return description;
 }
 
+cell_t * cellPMux_t::createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule){
+
+    int numberOfPorts = 1;
+
+    cellPMux_t *newCell = new cellPMux_t(
+        inJ["name"],
+        inJ["hide_name"],
+        inJ["parameters"]["WIDTH"],
+        inJ["parameters"]["S_WIDTH"]
+    );
+
+    createPortsFromJson(inJ["ports"]["A"], inNets, inModule, numberOfPorts, newCell->a);
+    createPortsFromJson(inJ["ports"]["B"], inNets, inModule, numberOfPorts, newCell->b);
+    createPortsFromJson(inJ["ports"]["Y"], inNets, inModule, numberOfPorts, newCell->y);
+    createPortsFromJson(inJ["ports"]["S"], inNets, inModule, numberOfPorts, newCell->s);
+
+    return (cell_t*) newCell;
+}
+
 json cellSlice_t::storeAdditionalInJson()
 {
     json description;
@@ -2016,6 +2161,24 @@ json cellSlice_t::storeAdditionalInJson()
     fillPortsIntoJson(description["ports"]["Y"], this->y);
 
     return description;
+}
+
+cell_t * cellSlice_t::createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule){
+
+    int numberOfPorts = 1;
+
+    cellSlice_t *newCell = new cellSlice_t(
+        inJ["name"],
+        inJ["hide_name"],
+        inJ["parameters"]["OFFSET"],
+        inJ["parameters"]["A_WIDTH"],
+        inJ["parameters"]["Y_WIDTH"]
+    );
+
+    createPortsFromJson(inJ["ports"]["A"], inNets, inModule, numberOfPorts, newCell->a);
+    createPortsFromJson(inJ["ports"]["Y"], inNets, inModule, numberOfPorts, newCell->y);
+
+    return (cell_t*) newCell;
 }
 
 json cellSop_t::storeAdditionalInJson()
@@ -2033,6 +2196,32 @@ json cellSop_t::storeAdditionalInJson()
     fillPortsIntoJson(description["ports"]["A"], this->a);
 
     return description;
+}
+
+cell_t * cellSop_t::createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule){
+
+    int numberOfPorts = 1;
+    port_t *yPort;
+    createPortFromJson(inJ["ports"]["Y"], inNets, inModule, numberOfPorts, yPort);
+
+    cellSop_t *newCell = new cellSop_t(
+        inJ["name"],
+        inJ["hide_name"],
+        inJ["parameters"]["WIDTH"],
+        inJ["parameters"]["DEPTH"],
+        *yPort
+    );
+
+    int tableSize = newCell->width * newCell->depth;
+    newCell->table = new unsigned int[tableSize];
+
+    for (int i = 0; i < tableSize; i++)
+    {
+        newCell->table[i] = inJ["parameters"]["TABLE"].at(i);
+    }
+
+    return (cell_t*) newCell;
+
 }
 
 json cellSpecify2_t::storeAdditionalInJson()
@@ -2056,6 +2245,36 @@ json cellSpecify2_t::storeAdditionalInJson()
     return description;
 }
 
+cell_t * cellSpecify2_t::createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule, const cellType_t type){
+
+    int numberOfPorts = 1;
+    port_t *enPort;
+    createPortFromJson(inJ["ports"]["EN"], inNets, inModule, numberOfPorts, enPort);
+    
+    cellSpecify2_t *newCell = new cellSpecify2_t(
+        inJ["name"],
+        inJ["hide_name"],
+        type,
+        inJ["parameters"]["FULL"],
+        inJ["parameters"]["SRC_WIDTH"],
+        inJ["parameters"]["DST_WIDTH"],
+        inJ["parameters"]["SRC_DST_PEN"],
+        inJ["parameters"]["SRD_DST_POL"],
+        inJ["parameters"]["T_RISE_MIN"],
+        inJ["parameters"]["T_RISE_TYP"],
+        inJ["parameters"]["T_RISE_MAX"],
+        inJ["parameters"]["T_FALL_MIN"],
+        inJ["parameters"]["T_FALL_TYP"],
+        inJ["parameters"]["T_FALL_MAX"],
+        *enPort
+    );
+
+    createPortsFromJson(inJ["ports"]["SRC"], inNets, inModule, numberOfPorts, newCell->src);
+    createPortsFromJson(inJ["ports"]["DST"], inNets, inModule, numberOfPorts, newCell->dst);
+
+    return (cell_t*) newCell;
+}
+
 json cellSpecify3_t::storeAdditionalInJson()
 {
     json description;
@@ -2069,15 +2288,68 @@ json cellSpecify3_t::storeAdditionalInJson()
     return description;
 }
 
+cell_t * cellSpecify3_t::createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule, const cellType_t type){
+    int numberOfPorts = 1;
+    port_t *enPort;
+    createPortFromJson(inJ["ports"]["EN"], inNets, inModule, numberOfPorts, enPort);
+    
+    cellSpecify3_t *newCell = new cellSpecify3_t(
+        inJ["name"],
+        inJ["hide_name"],
+        type,
+        inJ["parameters"]["FULL"],
+        inJ["parameters"]["SRC_WIDTH"],
+        inJ["parameters"]["DST_WIDTH"],
+        inJ["parameters"]["SRC_DST_PEN"],
+        inJ["parameters"]["SRD_DST_POL"],
+        inJ["parameters"]["T_RISE_MIN"],
+        inJ["parameters"]["T_RISE_TYP"],
+        inJ["parameters"]["T_RISE_MAX"],
+        inJ["parameters"]["T_FALL_MIN"],
+        inJ["parameters"]["T_FALL_TYP"],
+        inJ["parameters"]["T_FALL_MAX"],
+        inJ["parameters"]["EDGE_EN"],
+        inJ["parameters"]["EDGE_POL"],
+        inJ["parameters"]["DAT_DST_PEN"],
+        inJ["parameters"]["DAT_DST_POL"],
+        *enPort
+    );
+
+    createPortsFromJson(inJ["ports"]["SRC"], inNets, inModule, numberOfPorts, newCell->src);
+    createPortsFromJson(inJ["ports"]["DST"], inNets, inModule, numberOfPorts, newCell->dst);
+    createPortsFromJson(inJ["ports"]["DAT"], inNets, inModule, numberOfPorts, newCell->dat);
+
+    return (cell_t*) newCell;
+}
+
 json cellTriBuf_t::storeAdditionalInJson()
 {
     json description;
     description["parameters"]["WIDTH"] = this->width;
-    fillPortIntoJson(description["ports"]["DAT"], this->en);
+    fillPortIntoJson(description["ports"]["EN"], this->en);
     fillPortsIntoJson(description["ports"]["A"], this->a);
     fillPortsIntoJson(description["ports"]["Y"], this->y);
 
     return description;
+}
+
+cell_t * cellTriBuf_t::createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule){
+
+    int numberOfPorts = 1;
+    port_t *enPort;
+    createPortFromJson(inJ["ports"]["EN"], inNets, inModule, numberOfPorts, enPort);
+
+    cellTriBuf_t *newCell = new cellTriBuf_t(
+        inJ["name"],
+        inJ["hide_name"],
+        inJ["parameters"]["WIDTH"],
+        *enPort
+    );
+
+    createPortsFromJson(inJ["ports"]["A"], inNets, inModule, numberOfPorts, newCell->a);
+    createPortsFromJson(inJ["ports"]["Y"], inNets, inModule, numberOfPorts, newCell->y);
+
+    return (cell_t*) newCell;
 }
 
 json cellSr_t::storeAdditionalInJson()
@@ -2091,4 +2363,23 @@ json cellSr_t::storeAdditionalInJson()
     fillPortsIntoJson(description["ports"]["Q"], this->q);
 
     return description;
+}
+
+cell_t * cellSr_t::createAdditionalFromJson(json &inJ, json &inNets, module_t &inModule){
+
+    int numberOfPorts = 1;
+
+    cellSr_t *newCell = new cellSr_t(
+        inJ["name"],
+        inJ["hide_name"],
+        inJ["parameters"]["WIDTH"],
+        inJ["parameters"]["SET_POLARITY"],
+        inJ["parameters"]["CLR_POLARITY"]
+    );
+
+    createPortsFromJson(inJ["ports"]["SET"], inNets, inModule, numberOfPorts, newCell->set);
+    createPortsFromJson(inJ["ports"]["CLR"], inNets, inModule, numberOfPorts, newCell->clr);
+    createPortsFromJson(inJ["ports"]["Q"], inNets, inModule, numberOfPorts, newCell->q);
+
+    return (cell_t*) newCell;
 }
