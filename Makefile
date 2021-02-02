@@ -1,6 +1,6 @@
 
 CXX       := g++
-CXX_FLAGS := -std=c++17 -ggdb
+CXX_FLAGS := -std=c++17
 
 BIN     := ./bin
 SRC     := ./src
@@ -10,19 +10,18 @@ LIBRARIES   :=
 EXECUTABLE  := dut.exe
 
 SRCS := $(wildcard $(SRC)/*.cpp)
-OBJS := $(SRCS:$(SRC)/%.cpp=%.o)
+OBJS := $(SRCS:$(SRC)/%.cpp=$(BIN)/%.o)
 
-%.o: $(SRC)/%.cpp
-	$(CXX) $(CXX_FLAGS) -I"$(INCLUDE)" $< -c -o $(BIN)/$@ $(LIBRARIES)
+$(BIN)/%.o: $(SRC)/%.cpp
+	$(CXX) $(CXX_FLAGS) -I"$(INCLUDE)" $< -c -o $@ $(LIBRARIES)
 
-all: $(OBJS) $(BIN)/$(EXECUTABLE)
+all: $(BIN)/$(EXECUTABLE)
 	
 
 run: ./$(BIN)/$(EXECUTABLE)
 
-$(BIN)/$(EXECUTABLE): 
-#	$(OBJS)
-	$(CXX)  $(OBJS:%.o=$(BIN)/%.o) -o $@ $(LIBRARIES)
+$(BIN)/$(EXECUTABLE): $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LIBRARIES)
 
 clean:
-	rm -f $(BIN)/*
+#	rm -rf $(BIN)/* #Figure out why this is not working
