@@ -7,15 +7,22 @@ SRC     := ./src
 INCLUDE := ./inc
 
 LIBRARIES   :=
-EXECUTABLE  := main.exe
+EXECUTABLE  := dut.exe
 
+SRCS := $(wildcard $(SRC)/*.cpp)
+OBJS := $(SRCS:$(SRC)/%.cpp=%.o)
 
-all: $(BIN)/$(EXECUTABLE)
+%.o: $(SRC)/%.cpp
+	$(CXX) $(CXX_FLAGS) -I"$(INCLUDE)" $< -c -o $(BIN)/$@ $(LIBRARIES)
+
+all: $(OBJS) $(BIN)/$(EXECUTABLE)
+	
 
 run: ./$(BIN)/$(EXECUTABLE)
 
-$(BIN)/$(EXECUTABLE): $(SRC)/*.cpp
-	$(CXX) $(CXX_FLAGS) -I"$(INCLUDE)" $^ -o $@ $(LIBRARIES)
+$(BIN)/$(EXECUTABLE): 
+#	$(OBJS)
+	$(CXX)  $(OBJS:%.o=$(BIN)/%.o) -o $@ $(LIBRARIES)
 
 clean:
 	rm -f $(BIN)/*

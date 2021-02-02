@@ -10,6 +10,7 @@
 #include "net.h"
 #include "cell.h"
 #include "processing.h"
+#include "functionalities.h"
 
 using namespace std;
 using json = nlohmann::json;
@@ -101,6 +102,13 @@ int main(int argc, char *argv[])
             }
         }
     }
+
+    vector<module_t>::iterator it = newDesign.modules.begin();
+    while(it != newDesign.modules.end()){
+        markCFInfluencingNets(*it);
+        it++;
+    }
+
 
     ofstream checkFile("leftDescription.json");
     checkFile << description.dump(4);

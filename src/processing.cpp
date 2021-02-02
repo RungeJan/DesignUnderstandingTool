@@ -8,6 +8,7 @@
 #include "cell.h"
 #include "localExceptions.h"
 #include "yosysJson.h"
+#include "functionalities.h"
 
 using namespace std;
 

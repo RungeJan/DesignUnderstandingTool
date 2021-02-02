@@ -22,7 +22,8 @@ enum direction_t {DirectionInput, DirectionOutput, DirectionInOut};
  */
 struct net_t{
 
-    net_t(std::string newName, const unsigned int newId, const unsigned int newRefId, const bool inHideName):name(newName), bitId(newId), netRefId(newRefId), hideName(inHideName){};
+    net_t(std::string newName, const unsigned int newId, const unsigned int newRefId, const bool inHideName):name(newName), bitId(newId), netRefId(newRefId), hideName(inHideName),
+          hasCFInfluence(false){};
 
     /**
      * @brief This function will parse the struct instance into a json object
@@ -37,6 +38,7 @@ struct net_t{
     const unsigned int bitId;       //!< A unique identifier for this net, given by Yosys, global
     const unsigned int netRefId;    //!< A unique identifier for this net, given by this tool, local within a module
     const bool hideName;            //!< true, if the name should be hidden, false otherwise
+    bool hasCFInfluence;            //!< true, if this net has impact on the control flow
     std::vector<std::pair<std::string, std::string>> attributes;    //!< A list of attributes for the net
 };
 
