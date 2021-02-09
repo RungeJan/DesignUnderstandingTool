@@ -21,9 +21,12 @@ net_t &module_t::getNetWithId(unsigned int getBitId)
     {
         return zeroNet;
     }
-    if (getBitId == 1)
+    else if (getBitId == 1)
     {
         return oneNet;
+    }
+    else if(getBitId == -1){
+        return dontCareNet;
     }
     for (vector<net_t>::iterator it = netsInternal.begin(); it != netsInternal.end(); it++)
     {

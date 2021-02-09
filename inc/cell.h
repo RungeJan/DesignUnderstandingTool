@@ -128,6 +128,8 @@ struct cell_t
     const bool hideName;    //!< true, if this cells name should be hidden, false otherwise
     const cellType_t type;  //!< The exact type of this cell
     std::vector<std::pair<std::string, std::string>> attributes; //!< All the attributes given to the cell
+    std::vector<unsigned int> inputBitIds;  //!< The bitIds of the inputs, used for CF analysis
+    std::vector<unsigned int> outputBitIds; //!< The bitIds of the outputs, used for CF analysis
 
     /**
      * @brief This function will store all the common information of cells in a json and the specific information belonging to the cell type

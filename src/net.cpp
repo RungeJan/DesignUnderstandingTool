@@ -24,7 +24,7 @@ json net_t::storeInJson()
     description["bitId"] = this->bitId;
     description["hide_name"] = this->hideName;
     description["attributes"] = json(this->attributes);
-    description["cf_influencing"] = this->hasCFInfluence;
+    description["cf_influencing"] = this->hasCFInfluence == CFInfluenceNone ? "CFInfluenceNone" : this->hasCFInfluence == CFInfluencePrimary ? "CFInfluencePrimary": "CFInfluenceSecondary";
 
     return description;
 }
@@ -34,7 +34,7 @@ net_t *net_t::createFromJson(json &inJ, const unsigned int inRefId)
     net_t *newNet = new net_t(inJ["name"], inJ["bitId"], inRefId, inJ["hide_name"]);
     if (inJ.contains("cf_influence")) // This is not always possible, depending on the version which that the json representation was created
     {
-        newNet->hasCFInfluence = inJ["cf_influencing"];
+        newNet->hasCFInfluence = string(inJ["cf_influencing"]) == "CFInfluenceNone" ? CFInfluenceNone : string(inJ["cf_influencing"]) == "CFInfluencePrimary" ? CFInfluencePrimary : CFInfluenceSecondary;
     }
     json::iterator it = inJ["attributes"].begin();
     while (it != inJ["attributes"].end())
