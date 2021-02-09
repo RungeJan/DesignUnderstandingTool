@@ -9,13 +9,13 @@ net_t zeroNet("Logical_0", 0, 0, false);
 
 net_t oneNet("Logical_1", 1, 1, false);
 
-port_t zeroPort(DirectionInput, 0, zeroNet);
+port_t zeroPort(DirectionInput, 0, 0);
 
-port_t onePort(DirectionInput, 1, oneNet);
+port_t onePort(DirectionInput, 1, 1);
 
 net_t dontCareNet("x", -1, -1, false);
 
-port_t dontCarePort(DirectionInOut, -1, dontCareNet);
+port_t dontCarePort(DirectionInOut, -1, -1);
 
 json net_t::storeInJson()
 {
@@ -48,7 +48,7 @@ net_t *net_t::createFromJson(json &inJ, const unsigned int inRefId)
 json port_t::storeInJson()
 {
     json description;
-    string tempId = this->net.netRefId < 10 ? "00" + to_string(this->net.netRefId) : this->net.netRefId < 100 ? "0" + to_string(this->net.netRefId) : to_string(this->net.netRefId);
+    string tempId = this->netId < 10 ? "00" + to_string(this->netId) : this->netId < 100 ? "0" + to_string(this->netId) : to_string(this->netId);
     description["direction"] = this->direction == DirectionInput ? "Input" : (this->direction == DirectionOutput ? "Output" : "InOut");
     description["net"] = "net_" + tempId;
 

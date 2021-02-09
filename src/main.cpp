@@ -108,7 +108,11 @@ int main(int argc, char *argv[])
         markCFInfluencingNets(*it);
         it++;
     }
+    cout << "Description read in completely" << endl;
 
+    cout << newDesign.modules.at(0).netsInternal.at(5).name << " Address " << &(newDesign.modules.at(0).netsInternal.at(5)) << endl;
+    cout << newDesign.modules.at(0).getNetWithId(newDesign.modules.at(0).ports.at(0).netId).name << " Address " << 
+            &(newDesign.modules.at(0).getNetWithId(newDesign.modules.at(0).ports.at(0).netId)) << endl;
 
     ofstream checkFile("leftDescription.json");
     checkFile << description.dump(4);

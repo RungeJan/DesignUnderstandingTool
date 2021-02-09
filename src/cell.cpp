@@ -742,15 +742,15 @@ void createPortsFromJson(json &inPorts, json &inNets, module_t &inModule, int &p
         port_t *newPort = NULL;
         if ("net_000" == netName)
         {
-            newPort = new port_t(dir, portNumber++, inModule.getNetWithId(0));
+            newPort = new port_t(dir, portNumber++, 0);
         }
         else if ("net_001" == netName)
         {
-            newPort = new port_t(dir, portNumber++, inModule.getNetWithId(1));
+            newPort = new port_t(dir, portNumber++, 1);
         }
         else
         {
-            newPort = new port_t(dir, portNumber++, inModule.getNetWithId(inNets[netName]["bitId"]));
+            newPort = new port_t(dir, portNumber++, inNets[netName]["bitId"]);
         }
         if (NULL != newPort)
         {
@@ -768,15 +768,15 @@ void createPortFromJson(json &inPort, json &inNets, module_t &inModule, int &por
         outPort = NULL;
         if ("net_000" == netName)
         {
-            outPort = new port_t(dir, portNumber++, inModule.getNetWithId(0));
+            outPort = new port_t(dir, portNumber++, 0);
         }
         else if ("net_001" == netName)
         {
-            outPort = new port_t(dir, portNumber++, inModule.getNetWithId(1));
+            outPort = new port_t(dir, portNumber++, 1);
         }
         else
         {
-            outPort = new port_t(dir, portNumber++, inModule.getNetWithId(inNets[netName]["bitId"]));
+            outPort = new port_t(dir, portNumber++, inNets[netName]["bitId"]);
         }
         
 }

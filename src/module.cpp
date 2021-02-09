@@ -119,7 +119,7 @@ module_t *module_t::createFromJson(json &inJ)
         {
             string netName = (*it)["net"];
             direction_t dir = (*it)["direction"] == "Output" ? DirectionOutput : (*it)["direction"] == "Input" ? DirectionInput : DirectionInOut;
-            port_t *newPort = new port_t(dir, newModule->numberOfPorts++, newModule->getNetWithId(inJ["nets"][netName]["bitId"]));
+            port_t *newPort = new port_t(dir, newModule->numberOfPorts++, inJ["nets"][netName]["bitId"]);
             newModule->ports.push_back(*newPort);
             it++;
         }

@@ -13,15 +13,15 @@ void markCFInfluencingNets(module_t &inModule){
     while(cellIt != inModule.cells.end()){
         if(TypePMux == (*cellIt)->type){
             cellPMux_t *tempCell = (cellPMux_t*)(*cellIt);
-            vector<port_t>::iterator netIt = tempCell->s.begin();
-            while(netIt != tempCell->s.end()){
-                netIt->net.hasCFInfluence = true;
-                netIt++;
+            vector<port_t>::iterator portIt = tempCell->s.begin();
+            while(portIt != tempCell->s.end()){
+                inModule.getNetWithId(portIt->netId).hasCFInfluence = true;
+                portIt++;
             }
         }
         else if(TypeMux == (*cellIt)->type){
             cellMux_t *tempCell = (cellMux_t*)(*cellIt);
-            tempCell->s.net.hasCFInfluence = true;
+            inModule.getNetWithId(tempCell->s.netId).hasCFInfluence = true;
         }
 
         cellIt++;

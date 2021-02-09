@@ -44,7 +44,7 @@ struct net_t{
 
 struct port_t{
 
-    port_t(direction_t newDirection, unsigned int newRefId, net_t &newNet) : direction(newDirection), net(newNet), portRefId(newRefId){};
+    port_t(direction_t newDirection, unsigned int newRefId, unsigned int newNet) : direction(newDirection), netId(newNet), portRefId(newRefId){};
 
     /**
      * @brief This function will parse the struct instance into a json object
@@ -53,7 +53,7 @@ struct port_t{
      */
     json storeInJson();
 
-    net_t &net;             //!< The net this port belongs to
+    const unsigned int netId;     //!< The Id of the net this port belongs to
     direction_t direction;  //!< The direction of this port
     unsigned int portRefId; //!< A unique identifier for this port, given by this tool, local within modules, cells, etc.
 };

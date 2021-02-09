@@ -21,7 +21,7 @@ port_t *createPort(json inJ, direction_t inDir, string inSignalName, module_t *i
             if (temp != "x")
             {
                 netId = stoi(temp);
-                outPort = new port_t(inDir, portNumber, inModule->getNetWithId(netId));
+                outPort = new port_t(inDir, portNumber, netId);
             }
             else
             {
@@ -31,7 +31,7 @@ port_t *createPort(json inJ, direction_t inDir, string inSignalName, module_t *i
         else
         {
             netId = inJ["connections"][inSignalName].at(inPos);
-            outPort = new port_t(inDir, portNumber, inModule->getNetWithId(netId));
+            outPort = new port_t(inDir, portNumber, netId);
         }
     }
     catch (const elementDoesNotExistException &e)
