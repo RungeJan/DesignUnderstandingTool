@@ -106,7 +106,8 @@ int main(int argc, char *argv[])
 
     vector<module_t>::iterator it = newDesign.modules.begin();
     while(it != newDesign.modules.end()){
-        markCFInfluencingNets(*it);
+        //markCFInfluencingNets(*it);
+        createCFGraph(*it);
         it++;
     }
    

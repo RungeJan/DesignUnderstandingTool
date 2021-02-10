@@ -17,4 +17,6 @@
  */
 void markCFInfluencingNets(module_t &inModule);
 
+void createCFGraph(module_t &inModule);
+
 #endif // FUNCTIONALITIES_H_

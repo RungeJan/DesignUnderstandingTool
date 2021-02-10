@@ -830,6 +830,14 @@ void fillPortsIntoJson(json &inJson, vector<port_t> &ports)
     }
 }
 
+cell_t cell_t::operator=(const cell_t &inCell){
+    cell_t *newCell = new cell_t(inCell.name, inCell.hideName, inCell.type);
+    newCell->attributes.insert(newCell->attributes.begin(), inCell.attributes.begin(), inCell.attributes.end());
+    newCell->inputBitIds.insert(newCell->inputBitIds.begin(), inCell.inputBitIds.begin(), inCell.inputBitIds.end());
+    newCell->outputBitIds.insert(newCell->outputBitIds.begin(), inCell.outputBitIds.begin(), inCell.outputBitIds.end());
+    return *newCell;
+}
+
 json cell_t::storeInJson()
 {
     json description;

@@ -124,6 +124,7 @@ std::string getCellType(const cellType_t inType);
 struct cell_t
 {
     cell_t(std::string newName, bool hide, cellType_t newType) : name(newName), hideName(hide), type(newType){};
+    cell_t operator=(const cell_t &inCell);
     const std::string name; //!< The name of this cell
     const bool hideName;    //!< true, if this cells name should be hidden, false otherwise
     const cellType_t type;  //!< The exact type of this cell
@@ -155,7 +156,7 @@ struct cell_t
      * 
      * @return A json object holding the details about a cell
      */
-    virtual json storeAdditionalInJson() = 0;
+    virtual json storeAdditionalInJson();
    // virtual cell_t * createAdditionalFromJson(json &inJ);
 };
 /**
